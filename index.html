@@ -63,7 +63,7 @@
       <form id="signup-form" onsubmit="event.preventDefault(); submitSignUp();" class="space-y-4 hidden">
         <div>
           <label class="block text-xs font-semibold text-stone-600 uppercase tracking-wider mb-1">Full Name</label>
-          <input type="text" id="signup-name" required placeholder="Barista Name"
+          <input type="text" id="signup-name" required placeholder="Staff Name"
             class="w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm transition" />
         </div>
         <div>
@@ -92,7 +92,7 @@
   <div id="app-container" class="hidden flex-1 flex w-full h-full">
     
     <!-- Navigation Sidebar -->
-    <aside class="w-64 bg-white border-r border-stone-200 flex flex-col justify-between p-5">
+    <aside class="w-64 bg-white border-r border-stone-200 flex flex-col justify-between p-5 select-none">
       <div>
         <div class="flex items-center gap-3 px-2 py-3 mb-6">
           <div class="w-10 h-10 bg-amber-600 text-white rounded-xl flex items-center justify-center font-bold text-lg shadow-md shadow-amber-600/30">☕</div>
@@ -122,7 +122,7 @@
         </nav>
       </div>
 
-      <!-- User Profile & Log Out -->
+      <!-- User Profile Badge & Sign Out -->
       <div class="bg-stone-50 border border-stone-200/80 rounded-2xl p-3 flex items-center justify-between">
         <div class="truncate mr-2">
           <p id="user-display-name" class="text-xs font-bold text-stone-800 truncate">Staff Member</p>
@@ -140,29 +140,49 @@
       <!-- Top Status Header -->
       <header class="h-16 bg-white border-b border-stone-200 px-6 flex items-center justify-between">
         <div id="page-header-title" class="font-bold text-stone-800 text-lg">Food & Drinks</div>
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2 bg-stone-50 border border-stone-200 rounded-xl px-3 py-1.5 text-xs text-stone-600">
+            <span>Table:</span>
+            <select id="table-select" class="bg-transparent font-bold outline-none cursor-pointer">
+              <option value="Takeaway">Takeaway</option>
+              <option value="Table 1">Table 1</option>
+              <option value="Table 2">Table 2</option>
+              <option value="Table 3">Table 3</option>
+              <option value="Table 4">Table 4</option>
+              <option value="Table 5">Table 5</option>
+              <option value="Bar 1">Bar 1</option>
+            </select>
+          </div>
           <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-full border border-emerald-200">
-            <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Live Register
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Live Register
           </span>
-          <span id="current-clock" class="text-xs text-stone-500 font-medium">--:--</span>
+          <span id="current-clock" class="text-xs text-stone-500 font-medium font-mono">--:--</span>
         </div>
       </header>
 
       <!-- Views Container -->
       <div class="flex-1 overflow-hidden flex">
         
-        <!-- 1. FOOD & DRINKS VIEW -->
+        <!-- ================= 1. FOOD & DRINKS VIEW ================= -->
         <section id="view-catalog" class="flex-1 flex overflow-hidden">
           <div class="flex-1 flex flex-col p-6 overflow-hidden">
-            <!-- Categories -->
-            <div class="flex items-center gap-2 overflow-x-auto pb-4 hide-scrollbar">
-              <button onclick="filterCategory('All')" class="cat-pill px-4 py-2 rounded-full text-xs font-semibold bg-stone-900 text-white">All</button>
-              <button onclick="filterCategory('Cold Drinks')" class="cat-pill px-4 py-2 rounded-full text-xs font-semibold bg-white border border-stone-200 text-stone-600 hover:bg-stone-50">Cold Drinks</button>
-              <button onclick="filterCategory('Burgers')" class="cat-pill px-4 py-2 rounded-full text-xs font-semibold bg-white border border-stone-200 text-stone-600 hover:bg-stone-50">Burgers</button>
-              <button onclick="filterCategory('Pizza')" class="cat-pill px-4 py-2 rounded-full text-xs font-semibold bg-white border border-stone-200 text-stone-600 hover:bg-stone-50">Pizza</button>
-              <button onclick="filterCategory('Wok')" class="cat-pill px-4 py-2 rounded-full text-xs font-semibold bg-white border border-stone-200 text-stone-600 hover:bg-stone-50">Wok</button>
-              <button onclick="filterCategory('Desserts')" class="cat-pill px-4 py-2 rounded-full text-xs font-semibold bg-white border border-stone-200 text-stone-600 hover:bg-stone-50">Desserts</button>
-              <button onclick="filterCategory('Pasta')" class="cat-pill px-4 py-2 rounded-full text-xs font-semibold bg-white border border-stone-200 text-stone-600 hover:bg-stone-50">Pasta</button>
+            
+            <!-- Category Pills & Add Item Button -->
+            <div class="flex items-center justify-between pb-4">
+              <div class="flex items-center gap-2 overflow-x-auto hide-scrollbar">
+                <button onclick="filterCategory('All')" class="cat-pill px-4 py-2 rounded-full text-xs font-semibold bg-stone-900 text-white shadow-sm">All</button>
+                <button onclick="filterCategory('Cold Drinks')" class="cat-pill px-4 py-2 rounded-full text-xs font-semibold bg-white border border-stone-200 text-stone-600 hover:bg-stone-50">Cold Drinks</button>
+                <button onclick="filterCategory('Burgers')" class="cat-pill px-4 py-2 rounded-full text-xs font-semibold bg-white border border-stone-200 text-stone-600 hover:bg-stone-50">Burgers</button>
+                <button onclick="filterCategory('Pizza')" class="cat-pill px-4 py-2 rounded-full text-xs font-semibold bg-white border border-stone-200 text-stone-600 hover:bg-stone-50">Pizza</button>
+                <button onclick="filterCategory('Wok')" class="cat-pill px-4 py-2 rounded-full text-xs font-semibold bg-white border border-stone-200 text-stone-600 hover:bg-stone-50">Wok</button>
+                <button onclick="filterCategory('Desserts')" class="cat-pill px-4 py-2 rounded-full text-xs font-semibold bg-white border border-stone-200 text-stone-600 hover:bg-stone-50">Desserts</button>
+                <button onclick="filterCategory('Pasta')" class="cat-pill px-4 py-2 rounded-full text-xs font-semibold bg-white border border-stone-200 text-stone-600 hover:bg-stone-50">Pasta</button>
+              </div>
+
+              <!-- Item Manager Button -->
+              <button onclick="openItemModal()" class="px-4 py-2 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add / Edit Item
+              </button>
             </div>
 
             <!-- Grid Items -->
@@ -170,20 +190,22 @@
           </div>
 
           <!-- Active Cart Sidebar -->
-          <aside class="w-84 md:w-96 bg-white border-l border-stone-200 flex flex-col justify-between p-6">
+          <aside class="w-80 md:w-96 bg-white border-l border-stone-200 flex flex-col justify-between p-6">
             <div>
               <div class="flex items-center justify-between pb-4 border-b border-stone-100">
                 <h3 class="font-bold text-stone-900 text-base flex items-center gap-2">
                   <i data-lucide="shopping-cart" class="w-4 h-4 text-amber-600"></i> Active Order
                 </h3>
-                <button onclick="clearCart()" class="text-xs text-stone-400 hover:text-red-600 transition">Clear</button>
+                <button onclick="clearCart()" class="text-xs text-stone-400 hover:text-red-600 transition font-medium">Clear Cart</button>
               </div>
 
-              <div id="cart-list" class="divide-y divide-stone-100 max-h-[calc(100vh-360px)] overflow-y-auto mt-2">
-                <div class="py-8 text-center text-xs text-stone-400">Cart is empty</div>
+              <!-- Item Entries -->
+              <div id="cart-list" class="divide-y divide-stone-100 max-h-[calc(100vh-370px)] overflow-y-auto mt-2 hide-scrollbar">
+                <div class="py-12 text-center text-xs text-stone-400">Cart is empty</div>
               </div>
             </div>
 
+            <!-- Checkout Details -->
             <div class="pt-4 border-t border-stone-100 space-y-3">
               <div class="space-y-1.5 text-xs text-stone-500">
                 <div class="flex justify-between">
@@ -191,7 +213,7 @@
                   <span id="subtotal-val" class="font-semibold text-stone-800">$0.00</span>
                 </div>
                 <div class="flex justify-between">
-                  <span>Tax (10%)</span>
+                  <span id="tax-label">Tax (10%)</span>
                   <span id="tax-val" class="font-semibold text-stone-800">$0.00</span>
                 </div>
                 <div class="flex justify-between text-base font-bold text-stone-900 pt-1 border-t border-stone-100">
@@ -200,97 +222,315 @@
                 </div>
               </div>
 
-              <button onclick="checkoutCart()" class="w-full py-3.5 bg-amber-600 hover:bg-amber-700 active:scale-[0.98] text-white font-bold rounded-xl shadow-lg shadow-amber-600/25 transition">
-                Proceed to Checkout
+              <button onclick="openCheckoutModal()" class="w-full py-3.5 bg-amber-600 hover:bg-amber-700 active:scale-[0.98] text-white font-bold rounded-xl shadow-lg shadow-amber-600/25 transition">
+                Pay & Generate Bill
               </button>
             </div>
           </aside>
         </section>
 
-        <!-- 2. DASHBOARD VIEW -->
+        <!-- ================= 2. DASHBOARD VIEW ================= -->
         <section id="view-dashboard" class="flex-1 p-8 overflow-y-auto hidden">
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white p-5 rounded-2xl border border-stone-200">
-              <span class="text-xs text-stone-400 font-semibold uppercase">Today's Sales</span>
-              <p class="text-2xl font-bold text-stone-900 mt-1">$1,248.50</p>
-            </div>
-            <div class="bg-white p-5 rounded-2xl border border-stone-200">
-              <span class="text-xs text-stone-400 font-semibold uppercase">Total Orders</span>
-              <p class="text-2xl font-bold text-stone-900 mt-1">94</p>
-            </div>
-            <div class="bg-white p-5 rounded-2xl border border-stone-200">
-              <span class="text-xs text-stone-400 font-semibold uppercase">Active Tables</span>
-              <p class="text-2xl font-bold text-stone-900 mt-1">8 / 16</p>
-            </div>
-            <div class="bg-white p-5 rounded-2xl border border-stone-200">
-              <span class="text-xs text-stone-400 font-semibold uppercase">Avg Order Ticket</span>
-              <p class="text-2xl font-bold text-stone-900 mt-1">$13.28</p>
-            </div>
-          </div>
-          <div class="bg-white p-6 rounded-2xl border border-stone-200">
-            <h4 class="font-bold text-stone-800 text-sm mb-4">Live Activity</h4>
-            <p class="text-xs text-stone-500">Terminal register active and synchronized with Supabase.</p>
-          </div>
-        </section>
-
-        <!-- 3. MESSAGES VIEW -->
-        <section id="view-messages" class="flex-1 p-8 overflow-y-auto hidden">
-          <div class="max-w-xl bg-white p-6 rounded-2xl border border-stone-200">
-            <h4 class="font-bold text-stone-800 text-sm mb-3">Kitchen & Shift Notes</h4>
-            <div class="space-y-3 text-xs">
-              <div class="p-3 bg-stone-50 rounded-xl border border-stone-200/80">
-                <span class="font-bold text-stone-800">Kitchen Team:</span> Low on oat milk for Cold Drinks bar.
+          <div class="max-w-6xl mx-auto space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+              <div class="bg-white p-5 rounded-2xl border border-stone-200">
+                <span class="text-xs text-stone-400 font-semibold uppercase tracking-wider">Today's Revenue</span>
+                <p id="dash-revenue" class="text-2xl font-bold text-stone-900 mt-2">$1,482.00</p>
+                <span class="text-[11px] text-emerald-600 font-semibold">↑ +14% vs yesterday</span>
               </div>
-              <div class="p-3 bg-stone-50 rounded-xl border border-stone-200/80">
-                <span class="font-bold text-stone-800">Manager:</span> Peak lunch shift begins at 12:30 PM.
+              <div class="bg-white p-5 rounded-2xl border border-stone-200">
+                <span class="text-xs text-stone-400 font-semibold uppercase tracking-wider">Total Bills Finalized</span>
+                <p id="dash-orders" class="text-2xl font-bold text-stone-900 mt-2">108</p>
+                <span class="text-[11px] text-stone-400 font-medium">Across all tables</span>
+              </div>
+              <div class="bg-white p-5 rounded-2xl border border-stone-200">
+                <span class="text-xs text-stone-400 font-semibold uppercase tracking-wider">Active Tables</span>
+                <p class="text-2xl font-bold text-stone-900 mt-2">6 / 12</p>
+                <span class="text-[11px] text-amber-600 font-medium">50% dine-in capacity</span>
+              </div>
+              <div class="bg-white p-5 rounded-2xl border border-stone-200">
+                <span class="text-xs text-stone-400 font-semibold uppercase tracking-wider">Average Ticket</span>
+                <p class="text-2xl font-bold text-stone-900 mt-2">$13.72</p>
+                <span class="text-[11px] text-stone-400 font-medium">Per customer order</span>
               </div>
             </div>
-          </div>
-        </section>
 
-        <!-- 4. BILLS VIEW -->
-        <section id="view-bills" class="flex-1 p-8 overflow-y-auto hidden">
-          <div class="bg-white rounded-2xl border border-stone-200 p-6">
-            <h4 class="font-bold text-stone-800 text-sm mb-4">Completed Bills</h4>
-            <div id="bills-container" class="text-xs text-stone-400">No finalized bills recorded this session.</div>
-          </div>
-        </section>
-
-        <!-- 5. SETTINGS VIEW -->
-        <section id="view-settings" class="flex-1 p-8 overflow-y-auto hidden">
-          <div class="max-w-2xl bg-white rounded-2xl border border-stone-200 p-6 space-y-6">
-            <div>
-              <h3 class="font-bold text-stone-900 text-base">Account & Security Settings</h3>
-              <p class="text-xs text-stone-400">Manage your credentials and preferences</p>
-            </div>
-
-            <!-- Login & Password -->
-            <div class="pt-4 border-t border-stone-100">
-              <h4 class="text-xs font-bold text-stone-700 uppercase tracking-wider mb-3">Login & Password</h4>
-              <form onsubmit="event.preventDefault(); submitPasswordChange();" class="space-y-3">
-                <div>
-                  <label class="block text-xs text-stone-500 mb-1">New Password</label>
-                  <input type="password" id="settings-new-password" required placeholder="Enter new password (min 6 chars)" autocomplete="new-password"
-                    class="w-full max-w-sm px-4 py-2.5 rounded-xl bg-stone-50 border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="bg-white p-6 rounded-2xl border border-stone-200">
+                <h4 class="font-bold text-stone-800 text-sm mb-4">Sales by Category</h4>
+                <div class="space-y-3 text-xs">
+                  <div>
+                    <div class="flex justify-between mb-1 font-semibold text-stone-700"><span>Cold Drinks</span><span>38%</span></div>
+                    <div class="w-full bg-stone-100 rounded-full h-2"><div class="bg-amber-600 h-2 rounded-full" style="width: 38%"></div></div>
+                  </div>
+                  <div>
+                    <div class="flex justify-between mb-1 font-semibold text-stone-700"><span>Burgers & Pizza</span><span>29%</span></div>
+                    <div class="w-full bg-stone-100 rounded-full h-2"><div class="bg-amber-500 h-2 rounded-full" style="width: 29%"></div></div>
+                  </div>
+                  <div>
+                    <div class="flex justify-between mb-1 font-semibold text-stone-700"><span>Pasta & Wok</span><span>21%</span></div>
+                    <div class="w-full bg-stone-100 rounded-full h-2"><div class="bg-amber-400 h-2 rounded-full" style="width: 21%"></div></div>
+                  </div>
+                  <div>
+                    <div class="flex justify-between mb-1 font-semibold text-stone-700"><span>Desserts</span><span>12%</span></div>
+                    <div class="w-full bg-stone-100 rounded-full h-2"><div class="bg-stone-400 h-2 rounded-full" style="width: 12%"></div></div>
+                  </div>
                 </div>
-                <button type="submit" class="px-5 py-2.5 bg-stone-900 hover:bg-stone-800 text-white font-semibold text-xs rounded-xl transition">
-                  Update Password
-                </button>
-              </form>
+              </div>
+
+              <div class="bg-white p-6 rounded-2xl border border-stone-200 flex flex-col justify-between">
+                <div>
+                  <h4 class="font-bold text-stone-800 text-sm mb-2">Terminal Shift Status</h4>
+                  <p class="text-xs text-stone-500">Live cashier station active. Supabase connection synced.</p>
+                </div>
+                <div class="p-4 bg-amber-50 rounded-xl border border-amber-200/60 flex items-center justify-between">
+                  <div>
+                    <p class="text-xs font-bold text-amber-900">Shift Started</p>
+                    <p class="text-[11px] text-amber-700">08:00 AM — Active Staff Register</p>
+                  </div>
+                  <button onclick="alert('Shift report generated!')" class="px-3 py-1.5 bg-amber-600 text-white rounded-lg text-xs font-semibold hover:bg-amber-700">Export Report</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= 3. MESSAGES VIEW ================= -->
+        <section id="view-messages" class="flex-1 p-8 overflow-y-auto hidden">
+          <div class="max-w-2xl mx-auto bg-white rounded-2xl border border-stone-200 p-6 flex flex-col h-[600px]">
+            <div class="pb-4 border-b border-stone-100 flex items-center justify-between">
+              <div>
+                <h4 class="font-bold text-stone-900 text-sm">Staff & Kitchen Channel</h4>
+                <p class="text-[11px] text-stone-400">Live team shift communication</p>
+              </div>
+              <span class="text-xs px-2.5 py-1 bg-emerald-50 text-emerald-700 font-semibold rounded-lg">Active Room</span>
             </div>
 
-            <!-- Personal Information -->
-            <div class="pt-4 border-t border-stone-100">
-              <h4 class="text-xs font-bold text-stone-700 uppercase tracking-wider mb-2">Personal Information</h4>
-              <p class="text-xs text-stone-500">Connected account: <span id="settings-email-display" class="font-semibold text-stone-800">-</span></p>
+            <!-- Messages Stream -->
+            <div id="messages-list" class="flex-1 overflow-y-auto py-4 space-y-3 text-xs">
+              <div class="p-3 bg-stone-50 rounded-xl border border-stone-200/70">
+                <div class="flex justify-between font-bold text-stone-800 mb-1">
+                  <span>Head Barista</span>
+                  <span class="text-[10px] font-normal text-stone-400">10:05 AM</span>
+                </div>
+                <p class="text-stone-600">Cold Brew Reserve running low, 4 bottles remaining in cooling drawer.</p>
+              </div>
+              <div class="p-3 bg-stone-50 rounded-xl border border-stone-200/70">
+                <div class="flex justify-between font-bold text-stone-800 mb-1">
+                  <span>Kitchen / Wok Station</span>
+                  <span class="text-[10px] font-normal text-stone-400">09:42 AM</span>
+                </div>
+                <p class="text-stone-600">Truffle Carbonara ingredients fresh stock prepped for lunch rush.</p>
+              </div>
             </div>
 
-            <!-- Sign Out -->
-            <div class="pt-4 border-t border-stone-100">
-              <h4 class="text-xs font-bold text-stone-700 uppercase tracking-wider mb-2">Log Out</h4>
-              <button onclick="handleSignOut()" class="px-5 py-2.5 bg-red-50 text-red-600 hover:bg-red-100 font-semibold text-xs rounded-xl transition">
-                Sign Out of Terminal
+            <!-- Send Message Input -->
+            <form onsubmit="event.preventDefault(); sendStaffMessage();" class="pt-3 border-t border-stone-100 flex gap-2">
+              <input type="text" id="message-input" placeholder="Type a shift message..." required
+                class="flex-1 px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-amber-500" />
+              <button type="submit" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl transition">
+                Send
               </button>
+            </form>
+          </div>
+        </section>
+
+        <!-- ================= 4. BILLS VIEW ================= -->
+        <section id="view-bills" class="flex-1 p-8 overflow-y-auto hidden">
+          <div class="max-w-4xl mx-auto bg-white rounded-2xl border border-stone-200 p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h4 class="font-bold text-stone-900 text-base">Completed Bills & Receipts</h4>
+                <p class="text-xs text-stone-400">Review, search, or reprint finalized invoices</p>
+              </div>
+              <button onclick="seedDemoBill()" class="text-xs px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 font-semibold rounded-lg transition">
+                + Add Sample Bill
+              </button>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead>
+                  <tr class="border-b border-stone-200 text-stone-400 font-bold uppercase tracking-wider">
+                    <th class="py-3 px-3">Bill ID</th>
+                    <th class="py-3 px-3">Table / Type</th>
+                    <th class="py-3 px-3">Time</th>
+                    <th class="py-3 px-3">Items</th>
+                    <th class="py-3 px-3">Total</th>
+                    <th class="py-3 px-3">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="bills-tbody" class="divide-y divide-stone-100 text-stone-700">
+                  <tr>
+                    <td class="py-3 px-3 font-mono font-bold text-amber-600">#POS-1001</td>
+                    <td class="py-3 px-3">Table 2</td>
+                    <td class="py-3 px-3">10:14 AM</td>
+                    <td class="py-3 px-3">1x Truffle Carbonara, 1x Cold Brew</td>
+                    <td class="py-3 px-3 font-bold text-stone-900">$18.15</td>
+                    <td class="py-3 px-3">
+                      <button onclick="alert('Thermal bill #POS-1001 re-printed!')" class="text-amber-600 hover:underline font-semibold">Reprint</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= 5. SETTINGS VIEW (Full Wireframe Submodules) ================= -->
+        <section id="view-settings" class="flex-1 p-8 overflow-y-auto hidden">
+          <div class="max-w-5xl mx-auto flex gap-6">
+            
+            <!-- Settings Sub-Navigation -->
+            <div class="w-56 space-y-1 select-none">
+              <button onclick="switchSettingsSection('profile')" id="setnav-profile" class="setnav-btn w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs bg-amber-600 text-white transition">
+                Profile
+              </button>
+              <button onclick="switchSettingsSection('notifications')" id="setnav-notifications" class="setnav-btn w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs text-stone-600 hover:bg-stone-50 transition">
+                Notifications
+              </button>
+              <button onclick="switchSettingsSection('appearance')" id="setnav-appearance" class="setnav-btn w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs text-stone-600 hover:bg-stone-50 transition">
+                Appearance
+              </button>
+              <button onclick="switchSettingsSection('checkout')" id="setnav-checkout" class="setnav-btn w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs text-stone-600 hover:bg-stone-50 transition">
+                Checkout Settings
+              </button>
+              <button onclick="switchSettingsSection('security')" id="setnav-security" class="setnav-btn w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs text-stone-600 hover:bg-stone-50 transition">
+                Security
+              </button>
+              <button onclick="switchSettingsSection('language')" id="setnav-language" class="setnav-btn w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs text-stone-600 hover:bg-stone-50 transition">
+                Language & Region
+              </button>
+            </div>
+
+            <!-- Settings Content Pane -->
+            <div class="flex-1 bg-white rounded-2xl border border-stone-200 p-6 min-h-[450px]">
+              
+              <!-- Submodule: Profile -->
+              <div id="subsetting-profile" class="space-y-6">
+                <div>
+                  <h3 class="font-bold text-stone-900 text-base">Profile Management</h3>
+                  <p class="text-xs text-stone-400">Manage your credentials and staff identity</p>
+                </div>
+
+                <!-- Personal Information -->
+                <div class="pt-4 border-t border-stone-100">
+                  <h4 class="text-xs font-bold text-stone-700 uppercase tracking-wider mb-2">Personal Information</h4>
+                  <div class="grid grid-cols-2 gap-3 max-w-md">
+                    <div>
+                      <span class="text-[11px] text-stone-400">Current Role</span>
+                      <p class="text-xs font-semibold text-stone-800">Barista / Terminal Cashier</p>
+                    </div>
+                    <div>
+                      <span class="text-[11px] text-stone-400">Connected Account</span>
+                      <p id="settings-email-display" class="text-xs font-semibold text-stone-800 truncate">ratanayorng@gmail.com</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Login & Password -->
+                <div class="pt-4 border-t border-stone-100">
+                  <h4 class="text-xs font-bold text-stone-700 uppercase tracking-wider mb-3">Login & Password</h4>
+                  <form onsubmit="event.preventDefault(); submitPasswordChange();" class="space-y-3">
+                    <div>
+                      <label class="block text-xs text-stone-500 mb-1">Update Password</label>
+                      <input type="password" id="settings-new-password" required placeholder="Enter new password (min 6 chars)" autocomplete="new-password"
+                        class="w-full max-w-sm px-4 py-2.5 rounded-xl bg-stone-50 border border-stone-200 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                    </div>
+                    <button type="submit" class="px-5 py-2.5 bg-stone-900 hover:bg-stone-800 text-white font-semibold text-xs rounded-xl transition">
+                      Save New Password
+                    </button>
+                  </form>
+                </div>
+
+                <!-- Log Out -->
+                <div class="pt-4 border-t border-stone-100">
+                  <h4 class="text-xs font-bold text-stone-700 uppercase tracking-wider mb-2">Terminal Log Out</h4>
+                  <button onclick="handleSignOut()" class="px-5 py-2.5 bg-red-50 text-red-600 hover:bg-red-100 font-semibold text-xs rounded-xl transition">
+                    Sign Out of Terminal
+                  </button>
+                </div>
+              </div>
+
+              <!-- Submodule: Notifications -->
+              <div id="subsetting-notifications" class="space-y-4 hidden">
+                <h3 class="font-bold text-stone-900 text-base">Alert & Sound Preferences</h3>
+                <div class="space-y-3 text-xs pt-2">
+                  <label class="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" checked class="rounded text-amber-600 focus:ring-amber-500 w-4 h-4" />
+                    <span>Play acoustic chime when an order is completed</span>
+                  </label>
+                  <label class="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" checked class="rounded text-amber-600 focus:ring-amber-500 w-4 h-4" />
+                    <span>Display banner on urgent shift messages</span>
+                  </label>
+                  <label class="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" checked class="rounded text-amber-600 focus:ring-amber-500 w-4 h-4" />
+                    <span>Low stock warnings (less than 5 items remaining)</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Submodule: Appearance -->
+              <div id="subsetting-appearance" class="space-y-4 hidden">
+                <h3 class="font-bold text-stone-900 text-base">Appearance</h3>
+                <p class="text-xs text-stone-400">Terminal interface theme options</p>
+                <div class="flex gap-4 pt-2 text-xs">
+                  <button class="px-4 py-3 border-2 border-amber-600 rounded-xl bg-amber-50 font-bold text-amber-900">☀️ Artisan Warm (Active)</button>
+                  <button onclick="alert('Dark Mode will be enabled in next release!')" class="px-4 py-3 border border-stone-200 rounded-xl font-semibold text-stone-600 hover:bg-stone-50">🌙 Night Shift Dark</button>
+                </div>
+              </div>
+
+              <!-- Submodule: Checkout Settings -->
+              <div id="subsetting-checkout" class="space-y-4 hidden">
+                <h3 class="font-bold text-stone-900 text-base">Checkout Settings</h3>
+                <div class="max-w-xs space-y-3 text-xs pt-2">
+                  <div>
+                    <label class="block text-stone-500 mb-1 font-semibold">Tax Rate (%)</label>
+                    <input type="number" id="tax-rate-input" value="10" min="0" max="30" onchange="updateTaxRate(this.value)"
+                      class="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl font-semibold" />
+                  </div>
+                  <div>
+                    <label class="block text-stone-500 mb-1 font-semibold">Currency Format</label>
+                    <input type="text" value="USD ($)" readonly class="w-full px-3 py-2 bg-stone-100 border border-stone-200 rounded-xl font-semibold text-stone-500" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Submodule: Security -->
+              <div id="subsetting-security" class="space-y-4 hidden">
+                <h3 class="font-bold text-stone-900 text-base">Security & Terminals</h3>
+                <div class="space-y-3 text-xs pt-2">
+                  <div>
+                    <label class="block text-stone-500 mb-1 font-semibold">Manager PIN for Bill Voiding</label>
+                    <input type="password" value="8888" class="px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl font-semibold" />
+                  </div>
+                  <label class="flex items-center gap-3 cursor-pointer pt-2">
+                    <input type="checkbox" checked class="rounded text-amber-600 focus:ring-amber-500 w-4 h-4" />
+                    <span>Auto-lock register screen after 15 minutes of inactivity</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Submodule: Language & Region -->
+              <div id="subsetting-language" class="space-y-4 hidden">
+                <h3 class="font-bold text-stone-900 text-base">Language & Region</h3>
+                <div class="max-w-xs space-y-3 text-xs pt-2">
+                  <div>
+                    <label class="block text-stone-500 mb-1 font-semibold">Interface Language</label>
+                    <select class="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl font-semibold">
+                      <option value="en" selected>English (US)</option>
+                      <option value="km">Khmer (ភាសាខ្មែរ)</option>
+                      <option value="fr">Français</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-stone-500 mb-1 font-semibold">Timezone</label>
+                    <input type="text" value="Asia/Phnom_Penh (GMT+7)" readonly class="w-full px-3 py-2 bg-stone-100 border border-stone-200 rounded-xl font-semibold text-stone-500" />
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
         </section>
@@ -299,13 +539,70 @@
     </main>
   </div>
 
-  <!-- ================= LOGIC & SUPABASE SCRIPT ================= -->
+  <!-- ================= ITEM ADD / EDIT MODAL ================= -->
+  <div id="item-modal" class="fixed inset-0 z-50 bg-stone-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl border border-stone-200">
+      <div class="flex items-center justify-between pb-3 border-b border-stone-100">
+        <h4 id="item-modal-title" class="font-bold text-stone-800 text-sm">Add or Edit Menu Item</h4>
+        <button onclick="closeItemModal()" class="text-stone-400 hover:text-stone-700">✕</button>
+      </div>
+
+      <form onsubmit="event.preventDefault(); saveMenuItem();" class="space-y-3 pt-3 text-xs">
+        <input type="hidden" id="edit-item-id" value="" />
+        
+        <div>
+          <label class="block text-stone-500 mb-1 font-semibold">Select Existing to Edit (or create new)</label>
+          <select id="edit-item-select" onchange="populateEditItemForm(this.value)" class="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl">
+            <option value="NEW">+ Create New Item</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-stone-500 mb-1 font-semibold">Item Name</label>
+          <input type="text" id="edit-item-name" required placeholder="e.g., Avocado Toast" class="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-stone-500 mb-1 font-semibold">Category</label>
+            <select id="edit-item-category" class="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl">
+              <option value="Cold Drinks">Cold Drinks</option>
+              <option value="Burgers">Burgers</option>
+              <option value="Pizza">Pizza</option>
+              <option value="Wok">Wok</option>
+              <option value="Desserts">Desserts</option>
+              <option value="Pasta">Pasta</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-stone-500 mb-1 font-semibold">Price ($)</label>
+            <input type="number" step="0.25" min="0" id="edit-item-price" required placeholder="4.50" class="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-stone-500 mb-1 font-semibold">Emoji Icon</label>
+          <input type="text" id="edit-item-icon" value="🍽️" class="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl" />
+        </div>
+
+        <div class="pt-3 flex gap-2">
+          <button type="submit" class="flex-1 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl transition">
+            Save Item
+          </button>
+          <button type="button" id="btn-delete-item" onclick="deleteMenuItem()" class="hidden px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-xl transition">
+            Delete
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= LOGIC & SUPABASE CLIENT ================= -->
   <script>
     // Supabase project credentials
     const SUPABASE_URL = "https://pbsrwpysykxqwegcayjq.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBic3J3cHlzeWt4cXdlZ2NheWpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3NjcwNDYsImV4cCI6MjEwNTM0MzA0Nn0.e4gRaGMWzGG0eApOI_tcLvjBZLDtTlAVsq8DGBqhExY";
 
-    // Safe client initialization avoiding global namespace collisions
     let supabaseClient = null;
     if (window.supabase && typeof window.supabase.createClient === 'function') {
       supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -335,10 +632,7 @@
       const email = document.getElementById("login-email").value.trim();
       const password = document.getElementById("login-password").value;
 
-      if (!email || !password) {
-        alert("Please enter both email and password.");
-        return;
-      }
+      if (!email || !password) return alert("Please enter both email and password.");
 
       if (supabaseClient) {
         const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
@@ -347,8 +641,6 @@
         } else {
           document.getElementById("login-password").value = "";
         }
-      } else {
-        alert("Supabase client failed to load. Check network connection.");
       }
     }
 
@@ -357,10 +649,7 @@
       const email = document.getElementById("signup-email").value.trim();
       const password = document.getElementById("signup-password").value;
 
-      if (password.length < 6) {
-        alert("Password must be at least 6 characters.");
-        return;
-      }
+      if (password.length < 6) return alert("Password must be at least 6 characters.");
 
       if (supabaseClient) {
         const { data, error } = await supabaseClient.auth.signUp({
@@ -371,7 +660,7 @@
         if (error) {
           alert("Sign up error: " + error.message);
         } else {
-          alert("Account registered successfully! You may now sign in.");
+          alert("Account registered successfully! You can now sign in.");
           toggleAuthMode('signin');
         }
       }
@@ -379,10 +668,7 @@
 
     async function submitPasswordChange() {
       const newPassword = document.getElementById("settings-new-password").value;
-      if (!newPassword || newPassword.length < 6) {
-        alert("Password must be at least 6 characters.");
-        return;
-      }
+      if (!newPassword || newPassword.length < 6) return alert("Password must be at least 6 characters.");
 
       if (supabaseClient) {
         const { data, error } = await supabaseClient.auth.updateUser({ password: newPassword });
@@ -391,8 +677,6 @@
         } else {
           alert("Password updated successfully!");
           document.getElementById("settings-new-password").value = "";
-          const loginPass = document.getElementById("login-password");
-          if (loginPass) loginPass.value = "";
         }
       }
     }
@@ -434,11 +718,11 @@
       });
     }
 
-    // ---------------- MENU & CART ----------------
-    const MENU_ITEMS = [
+    // ---------------- 6 WIREFRAME CATALOG CATEGORIES ----------------
+    const DEFAULT_ITEMS = [
       { id: 1, name: "Iced Caramel Macchiato", category: "Cold Drinks", price: 4.50, icon: "🥤" },
       { id: 2, name: "Cold Brew Reserve", category: "Cold Drinks", price: 4.00, icon: "🧊" },
-      { id: 3, name: "Matcha Latte (Iced)", category: "Cold Drinks", price: 4.75, icon: "🍵" },
+      { id: 3, name: "Iced Matcha Latte", category: "Cold Drinks", price: 4.75, icon: "🍵" },
       { id: 4, name: "Artisan Cheeseburger", category: "Burgers", price: 8.50, icon: "🍔" },
       { id: 5, name: "Crispy Chicken Deluxe", category: "Burgers", price: 8.00, icon: "🍗" },
       { id: 6, name: "Margherita Sourdough", category: "Pizza", price: 11.50, icon: "🍕" },
@@ -451,14 +735,16 @@
       { id: 13, name: "Pesto Genovese", category: "Pasta", price: 11.00, icon: "🌿" }
     ];
 
+    let MENU_ITEMS = JSON.parse(localStorage.getItem('pos_menu_items')) || DEFAULT_ITEMS;
     let cart = [];
     let activeCategory = "All";
+    let currentTaxRate = 0.10;
 
     function filterCategory(cat) {
       activeCategory = cat;
       document.querySelectorAll(".cat-pill").forEach(btn => {
         if (btn.textContent === cat) {
-          btn.className = "cat-pill px-4 py-2 rounded-full text-xs font-semibold bg-stone-900 text-white";
+          btn.className = "cat-pill px-4 py-2 rounded-full text-xs font-semibold bg-stone-900 text-white shadow-sm";
         } else {
           btn.className = "cat-pill px-4 py-2 rounded-full text-xs font-semibold bg-white border border-stone-200 text-stone-600 hover:bg-stone-50";
         }
@@ -471,18 +757,24 @@
       const filtered = activeCategory === "All" ? MENU_ITEMS : MENU_ITEMS.filter(i => i.category === activeCategory);
       
       grid.innerHTML = filtered.map(item => `
-        <div onclick="addToCart(${item.id})" class="bg-white p-4 rounded-2xl border border-stone-200/90 hover:border-amber-500/50 hover:shadow-md transition cursor-pointer flex flex-col justify-between">
+        <div onclick="addToCart(${item.id})" class="bg-white p-4 rounded-2xl border border-stone-200/90 hover:border-amber-500 hover:shadow-md transition cursor-pointer flex flex-col justify-between group">
           <div>
-            <div class="text-3xl mb-2">${item.icon}</div>
+            <div class="flex justify-between items-start">
+              <div class="text-3xl mb-2 group-hover:scale-105 transition-transform">${item.icon}</div>
+              <button onclick="event.stopPropagation(); editSpecificItem(${item.id});" title="Edit Item" class="p-1 text-stone-300 hover:text-stone-700 rounded transition">
+                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
             <h4 class="font-bold text-stone-900 text-xs leading-snug">${item.name}</h4>
             <span class="text-[10px] text-stone-400">${item.category}</span>
           </div>
           <div class="mt-3 flex items-center justify-between">
             <span class="font-bold text-stone-800 text-xs">$${item.price.toFixed(2)}</span>
-            <button class="w-7 h-7 bg-stone-100 hover:bg-amber-600 hover:text-white rounded-lg flex items-center justify-center text-xs font-bold transition">+</button>
+            <button class="w-7 h-7 bg-stone-100 group-hover:bg-amber-600 group-hover:text-white rounded-lg flex items-center justify-center text-xs font-bold transition">+</button>
           </div>
         </div>
       `).join('');
+      lucide.createIcons();
     }
 
     function addToCart(itemId) {
@@ -514,7 +806,7 @@
     function updateCartUI() {
       const cartList = document.getElementById("cart-list");
       if (cart.length === 0) {
-        cartList.innerHTML = `<div class="py-8 text-center text-xs text-stone-400">Cart is empty</div>`;
+        cartList.innerHTML = `<div class="py-12 text-center text-xs text-stone-400">Cart is empty</div>`;
       } else {
         cartList.innerHTML = cart.map(item => `
           <div class="py-2.5 flex items-center justify-between text-xs">
@@ -532,7 +824,7 @@
       }
 
       const subtotal = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
-      const tax = subtotal * 0.10;
+      const tax = subtotal * currentTaxRate;
       const total = subtotal + tax;
 
       document.getElementById("subtotal-val").textContent = `$${subtotal.toFixed(2)}`;
@@ -540,17 +832,166 @@
       document.getElementById("total-val").textContent = `$${total.toFixed(2)}`;
     }
 
-    function checkoutCart() {
-      if (cart.length === 0) {
-        alert("Cart is empty!");
-        return;
+    function updateTaxRate(val) {
+      const pct = parseFloat(val) || 0;
+      currentTaxRate = pct / 100;
+      document.getElementById("tax-label").textContent = `Tax (${pct}%)`;
+      updateCartUI();
+    }
+
+    // ---------------- ITEM ADD / EDIT MODAL ----------------
+    function openItemModal() {
+      populateItemSelectOptions();
+      document.getElementById("edit-item-select").value = "NEW";
+      populateEditItemForm("NEW");
+      document.getElementById("item-modal").classList.remove("hidden");
+    }
+
+    function closeItemModal() {
+      document.getElementById("item-modal").classList.add("hidden");
+    }
+
+    function editSpecificItem(id) {
+      openItemModal();
+      document.getElementById("edit-item-select").value = id;
+      populateEditItemForm(id);
+    }
+
+    function populateItemSelectOptions() {
+      const sel = document.getElementById("edit-item-select");
+      sel.innerHTML = `<option value="NEW">+ Create New Item</option>` + 
+        MENU_ITEMS.map(i => `<option value="${i.id}">${i.name} ($${i.price.toFixed(2)})</option>`).join('');
+    }
+
+    function populateEditItemForm(val) {
+      const btnDelete = document.getElementById("btn-delete-item");
+      if (val === "NEW") {
+        document.getElementById("edit-item-id").value = "";
+        document.getElementById("edit-item-name").value = "";
+        document.getElementById("edit-item-price").value = "";
+        document.getElementById("edit-item-icon").value = "🍽️";
+        btnDelete.classList.add("hidden");
+      } else {
+        const item = MENU_ITEMS.find(i => i.id == val);
+        if (item) {
+          document.getElementById("edit-item-id").value = item.id;
+          document.getElementById("edit-item-name").value = item.name;
+          document.getElementById("edit-item-category").value = item.category;
+          document.getElementById("edit-item-price").value = item.price;
+          document.getElementById("edit-item-icon").value = item.icon;
+          btnDelete.classList.remove("hidden");
+        }
       }
+    }
+
+    function saveMenuItem() {
+      const id = document.getElementById("edit-item-id").value;
+      const name = document.getElementById("edit-item-name").value.trim();
+      const category = document.getElementById("edit-item-category").value;
+      const price = parseFloat(document.getElementById("edit-item-price").value);
+      const icon = document.getElementById("edit-item-icon").value.trim() || "🍽️";
+
+      if (id) {
+        // Update existing
+        const item = MENU_ITEMS.find(i => i.id == id);
+        if (item) {
+          item.name = name;
+          item.category = category;
+          item.price = price;
+          item.icon = icon;
+        }
+      } else {
+        // Add new
+        const newId = Date.now();
+        MENU_ITEMS.push({ id: newId, name, category, price, icon });
+      }
+
+      localStorage.setItem('pos_menu_items', JSON.stringify(MENU_ITEMS));
+      renderCatalog();
+      closeItemModal();
+    }
+
+    function deleteMenuItem() {
+      const id = document.getElementById("edit-item-id").value;
+      if (!id) return;
+      if (confirm("Are you sure you want to delete this menu item?")) {
+        MENU_ITEMS = MENU_ITEMS.filter(i => i.id != id);
+        localStorage.setItem('pos_menu_items', JSON.stringify(MENU_ITEMS));
+        renderCatalog();
+        closeItemModal();
+      }
+    }
+
+    // ---------------- CHECKOUT & BILLS ----------------
+    function openCheckoutModal() {
+      if (cart.length === 0) return alert("Cart is empty!");
       const total = document.getElementById("total-val").textContent;
-      alert(`Order completed for ${total}! Ticket sent to kitchen.`);
+      const table = document.getElementById("table-select").value;
+      const billId = `#POS-${Math.floor(1000 + Math.random() * 9000)}`;
+      
+      const tbody = document.getElementById("bills-tbody");
+      const itemsSummary = cart.map(c => `${c.qty}x ${c.name}`).join(', ');
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      const newRow = `
+        <tr>
+          <td class="py-3 px-3 font-mono font-bold text-amber-600">${billId}</td>
+          <td class="py-3 px-3">${table}</td>
+          <td class="py-3 px-3">${timeStr}</td>
+          <td class="py-3 px-3 max-w-[200px] truncate" title="${itemsSummary}">${itemsSummary}</td>
+          <td class="py-3 px-3 font-bold text-stone-900">${total}</td>
+          <td class="py-3 px-3">
+            <button onclick="alert('Reprinting bill ${billId}')" class="text-amber-600 hover:underline font-semibold">Reprint</button>
+          </td>
+        </tr>
+      `;
+      tbody.innerHTML = newRow + tbody.innerHTML;
+
+      alert(`Payment finalized for ${total} (${table})!\nReceipt ${billId} printed.`);
       clearCart();
     }
 
-    // ---------------- NAVIGATION ----------------
+    function seedDemoBill() {
+      const billId = `#POS-${Math.floor(1000 + Math.random() * 9000)}`;
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const tbody = document.getElementById("bills-tbody");
+      tbody.innerHTML = `
+        <tr>
+          <td class="py-3 px-3 font-mono font-bold text-amber-600">${billId}</td>
+          <td class="py-3 px-3">Table 4</td>
+          <td class="py-3 px-3">${timeStr}</td>
+          <td class="py-3 px-3">2x Cold Brew, 1x Margherita</td>
+          <td class="py-3 px-3 font-bold text-stone-900">$21.45</td>
+          <td class="py-3 px-3">
+            <button onclick="alert('Reprinting bill ${billId}')" class="text-amber-600 hover:underline font-semibold">Reprint</button>
+          </td>
+        </tr>
+      ` + tbody.innerHTML;
+    }
+
+    // ---------------- SHIFT MESSAGES ----------------
+    function sendStaffMessage() {
+      const input = document.getElementById("message-input");
+      const text = input.value.trim();
+      if (!text) return;
+
+      const list = document.getElementById("messages-list");
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const msgHtml = `
+        <div class="p-3 bg-amber-50/60 rounded-xl border border-amber-200/80">
+          <div class="flex justify-between font-bold text-amber-950 mb-1">
+            <span>You (Active Barista)</span>
+            <span class="text-[10px] font-normal text-stone-400">${timeStr}</span>
+          </div>
+          <p class="text-stone-700">${text}</p>
+        </div>
+      `;
+      list.innerHTML += msgHtml;
+      input.value = "";
+      list.scrollTop = list.scrollHeight;
+    }
+
+    // ---------------- NAVIGATION TABS ----------------
     function switchTab(tabId) {
       ['catalog', 'dashboard', 'messages', 'bills', 'settings'].forEach(t => {
         document.getElementById(`view-${t}`).classList.add('hidden');
@@ -565,20 +1006,35 @@
       const titleMap = {
         catalog: "Food & Drinks",
         dashboard: "Dashboard Overview",
-        messages: "Staff Messages",
+        messages: "Shift Messages",
         bills: "Bills & Records",
         settings: "Settings"
       };
       document.getElementById("page-header-title").textContent = titleMap[tabId];
+      lucide.createIcons();
     }
 
-    // Clock display
+    // ---------------- SETTINGS SUBMODULE NAVIGATION ----------------
+    function switchSettingsSection(sectionId) {
+      ['profile', 'notifications', 'appearance', 'checkout', 'security', 'language'].forEach(s => {
+        document.getElementById(`subsetting-${s}`).classList.add('hidden');
+        const btn = document.getElementById(`setnav-${s}`);
+        btn.className = "setnav-btn w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs text-stone-600 hover:bg-stone-50 transition";
+      });
+
+      document.getElementById(`subsetting-${sectionId}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`setnav-${sectionId}`);
+      activeBtn.className = "setnav-btn w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs bg-amber-600 text-white transition";
+      lucide.createIcons();
+    }
+
+    // Live Clock
     setInterval(() => {
       const now = new Date();
       document.getElementById("current-clock").textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }, 1000);
 
-    // Initial setup
+    // Initial Boots
     renderCatalog();
     lucide.createIcons();
   </script>
