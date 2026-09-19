@@ -4,11 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SmartPOS Terminal</title>
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Supabase JS Client -->
+  <!-- Pinned, stable Lucide script -->
+  <script src="https://unpkg.com/lucide@0.344.0/dist/umd/lucide.js"></script>
+  <!-- Supabase CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
   <style>
@@ -22,180 +21,22 @@
       src: local('Gilroy-Medium'), local('Gilroy Medium'), url('https://cdn.jsdelivr.net/gh/radvil/Gilroy@master/Gilroy-Medium.woff2') format('woff2');
       font-weight: 500;
     }
-    @font-face {
-      font-family: 'Gilroy';
-      src: local('Gilroy-Regular'), local('Gilroy Regular'), url('https://cdn.jsdelivr.net/gh/radvil/Gilroy@master/Gilroy-Regular.woff2') format('woff2');
-      font-weight: 400;
-    }
-
     body {
-      font-family: 'Gilroy', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: 'Gilroy', -apple-system, BlinkMacSystemFont, sans-serif;
       background-color: #0E0E10;
       color: #000000;
     }
-
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-    /* Custom Switch */
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 44px;
-      height: 24px;
-    }
+    .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
     .switch input { opacity: 0; width: 0; height: 0; }
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #EFEFEF;
-      transition: .25s;
-      border-radius: 24px;
-    }
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 18px;
-      width: 18px;
-      left: 3px;
-      bottom: 3px;
-      background-color: white;
-      transition: .25s;
-      border-radius: 50%;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-    }
-    input:checked + .slider {
-      background-color: #FFCA40;
-    }
-    input:checked + .slider:before {
-      transform: translateX(20px);
-    }
-
-    @media print {
-      body * { visibility: hidden; }
-      #receipt-modal-content, #receipt-modal-content * { visibility: visible; }
-      #receipt-modal-content { position: absolute; left: 0; top: 0; width: 100%; }
-    }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #EFEFEF; transition: .2s; border-radius: 24px; }
+    .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .2s; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+    input:checked + .slider { background-color: #FFCA40; }
+    input:checked + .slider:before { transform: translateX(20px); }
   </style>
 </head>
 <body class="bg-[#0E0E10] text-black antialiased h-screen flex items-center justify-center p-2 sm:p-5 select-none overflow-hidden">
-
-  <!-- ================= AUTH OVERLAY (SCREEN 4) ================= -->
-  <div id="auth-view" class="fixed inset-0 z-50 flex items-center justify-center bg-[#0E0E10] p-4 sm:p-8 hidden">
-    <div class="bg-white rounded-[40px] shadow-2xl w-full max-w-5xl h-[680px] flex overflow-hidden border border-white/20">
-      <!-- Left Illustration Showcase -->
-      <div class="hidden md:flex w-1/2 bg-[#F8F8F7] flex-col justify-between p-10 relative">
-        <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 bg-[#C8161D] text-white rounded-xl flex items-center justify-center text-sm shadow-sm">🛍️</div>
-          <span class="font-extrabold text-black text-lg tracking-tight">Smart<span class="text-[#C8161D]">POS</span></span>
-        </div>
-
-        <div class="flex flex-col items-center justify-center my-auto relative">
-          <div class="w-64 bg-white rounded-[36px] shadow-2xl border-4 border-black p-4 relative overflow-hidden">
-            <div class="w-16 h-3 bg-black rounded-full mx-auto mb-3"></div>
-            <div class="bg-[#FFCA40] text-black font-extrabold text-[11px] py-2 px-3 rounded-xl flex justify-between items-center mb-3">
-              <span>PAYMENTS</span>
-              <span>⚡</span>
-            </div>
-            <div class="bg-stone-900 text-white p-3 rounded-2xl mb-3 shadow-md">
-              <div class="flex justify-between items-center mb-2">
-                <span class="text-[9px] text-[#FFCA40] font-bold">SMART CARD</span>
-                <span class="text-xs">💳</span>
-              </div>
-              <p class="text-[10px] font-mono tracking-widest text-stone-400">•••• 3456</p>
-            </div>
-            <div class="mt-4 pt-3 border-t border-stone-100 flex justify-between items-center">
-              <div>
-                <span class="text-[9px] text-[#808080]">TOTAL</span>
-                <p class="text-xs font-black text-black">$129.99</p>
-              </div>
-              <button class="px-2.5 py-1 bg-[#FFCA40] text-black text-[9px] font-extrabold rounded-lg">PAY NOW</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="text-center">
-          <h3 class="text-lg font-bold text-black max-w-xs mx-auto leading-snug">
-            Manage sales, inventory and other transactions
-          </h3>
-          <div class="flex justify-center gap-1.5 mt-4">
-            <span class="w-2 h-2 rounded-full bg-stone-300"></span>
-            <span class="w-2 h-2 rounded-full bg-stone-300"></span>
-            <span class="w-6 h-2 rounded-full bg-[#FFCA40]"></span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right Form Pane -->
-      <div class="w-full md:w-1/2 p-10 md:p-14 flex flex-col justify-between overflow-y-auto">
-        <div></div>
-        <div class="max-w-sm w-full mx-auto">
-          <h2 id="auth-main-heading" class="text-3xl font-black text-black tracking-tight mb-1">Welcome Back!</h2>
-          <p id="auth-sub-heading" class="text-xs text-[#808080] font-medium mb-6">Please, sign in to continue</p>
-
-          <form id="signin-form" onsubmit="event.preventDefault(); window.submitSignIn();" class="space-y-3">
-            <div>
-              <input type="text" id="login-email" required placeholder="Sales ID number or email" autocomplete="username"
-                class="w-full px-4 py-3.5 bg-[#F8F8F7] border border-[#808080]/15 rounded-2xl text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FFCA40] transition" />
-            </div>
-            <div class="relative">
-              <input type="password" id="login-password" required placeholder="Password" autocomplete="current-password"
-                class="w-full px-4 py-3.5 bg-[#F8F8F7] border border-[#808080]/15 rounded-2xl text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FFCA40] transition pr-10" />
-              <button type="button" onclick="window.togglePasswordVisibility('login-password')" class="absolute right-3.5 top-3.5 text-[#808080] hover:text-black">
-                <i data-lucide="eye" class="w-4 h-4"></i>
-              </button>
-            </div>
-
-            <button type="submit" id="btn-login"
-              class="w-full py-4 bg-[#FFCA40] hover:bg-[#e6b537] active:scale-[0.99] text-black font-extrabold rounded-2xl shadow-sm transition text-xs tracking-wide mt-2">
-              Sign in
-            </button>
-
-            <div class="text-center my-3 text-[11px] text-[#808080] font-medium">or</div>
-
-            <div class="grid grid-cols-2 gap-2.5">
-              <button type="button" onclick="alert('Google SSO connected.')" class="py-2.5 px-3 border border-[#808080]/20 rounded-xl text-[11px] font-bold text-black flex items-center justify-center gap-2 hover:bg-stone-50 transition">
-                <span>Google</span>
-              </button>
-              <button type="button" onclick="alert('Facebook SSO connected.')" class="py-2.5 px-3 border border-[#808080]/20 rounded-xl text-[11px] font-bold text-black flex items-center justify-center gap-2 hover:bg-stone-50 transition">
-                <span>Facebook</span>
-              </button>
-            </div>
-
-            <p class="text-center text-xs text-[#808080] pt-3">
-              Don't have an account? 
-              <a href="#" onclick="window.toggleAuthMode('signup')" class="text-black font-bold hover:underline">Go to Registration</a>
-            </p>
-          </form>
-
-          <form id="signup-form" onsubmit="event.preventDefault(); window.submitSignUp();" class="space-y-3 hidden">
-            <div>
-              <input type="text" id="signup-name" required placeholder="Full Name"
-                class="w-full px-4 py-3.5 bg-[#F8F8F7] border border-[#808080]/15 rounded-2xl text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FFCA40] transition" />
-            </div>
-            <div>
-              <input type="email" id="signup-email" required placeholder="Staff Email Address" autocomplete="username"
-                class="w-full px-4 py-3.5 bg-[#F8F8F7] border border-[#808080]/15 rounded-2xl text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FFCA40] transition" />
-            </div>
-            <div>
-              <input type="password" id="signup-password" required placeholder="Password (min 6 characters)" autocomplete="new-password"
-                class="w-full px-4 py-3.5 bg-[#F8F8F7] border border-[#808080]/15 rounded-2xl text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FFCA40] transition" />
-            </div>
-            <button type="submit" id="btn-signup"
-              class="w-full py-4 bg-[#FFCA40] hover:bg-[#e6b537] text-black font-extrabold rounded-2xl shadow-sm transition text-xs tracking-wide">
-              Create Register Account
-            </button>
-            <p class="text-center text-xs text-[#808080] pt-2">
-              Already registered? 
-              <a href="#" onclick="window.toggleAuthMode('signin')" class="text-black font-bold hover:underline">Sign in</a>
-            </p>
-          </form>
-        </div>
-        <div class="text-center text-[10px] text-[#808080]">© 2020 SmartPOS App</div>
-      </div>
-    </div>
-  </div>
 
   <!-- ================= MAIN POS APP ================= -->
   <div id="app-container" class="w-full h-full max-w-[1500px] max-h-[920px] bg-white rounded-[40px] shadow-2xl flex overflow-hidden border border-stone-200/50">
@@ -209,34 +50,29 @@
         </div>
 
         <nav class="space-y-1">
-          <button onclick="window.switchTab('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition text-[#808080] hover:bg-[#F8F8F7]">
-            <i data-lucide="layout-grid" class="w-4 h-4"></i> Dashboard
+          <button onclick="window.switchTab('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs text-[#808080] hover:bg-[#F8F8F7]">
+            <span>📊</span> Dashboard
           </button>
-          <button onclick="window.switchTab('catalog')" id="nav-catalog" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition bg-[#FFCA40] text-black shadow-sm">
-            <i data-lucide="utensils" class="w-4 h-4 text-black"></i> Food & Drinks
+          <button onclick="window.switchTab('catalog')" id="nav-catalog" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs bg-[#FFCA40] text-black shadow-sm">
+            <span>🍽️</span> Food & Drinks
           </button>
-          <button onclick="window.switchTab('messages')" id="nav-messages" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition text-[#808080] hover:bg-[#F8F8F7]">
-            <i data-lucide="message-square" class="w-4 h-4"></i> Messages
+          <button onclick="window.switchTab('messages')" id="nav-messages" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs text-[#808080] hover:bg-[#F8F8F7]">
+            <span>💬</span> Messages
           </button>
-          <button onclick="window.switchTab('bills')" id="nav-bills" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition text-[#808080] hover:bg-[#F8F8F7]">
-            <i data-lucide="receipt" class="w-4 h-4"></i> Bills
+          <button onclick="window.switchTab('bills')" id="nav-bills" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs text-[#808080] hover:bg-[#F8F8F7]">
+            <span>🧾</span> Bills
           </button>
-          <button onclick="window.switchTab('settings')" id="nav-settings" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition text-[#808080] hover:bg-[#F8F8F7]">
-            <i data-lucide="settings" class="w-4 h-4"></i> Settings
+          <button onclick="window.switchTab('settings')" id="nav-settings" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs text-[#808080] hover:bg-[#F8F8F7]">
+            <span>⚙️</span> Settings
           </button>
         </nav>
 
         <div class="pt-6 mt-4 border-t border-[#808080]/15">
           <span class="text-[10px] font-bold text-[#808080] uppercase tracking-wider px-4">Other</span>
           <div class="mt-2 space-y-1">
-            <button onclick="window.switchTab('settings'); window.switchSettingsSection('notifications');" class="w-full flex items-center justify-between px-4 py-2.5 rounded-2xl font-bold text-xs text-[#808080] hover:bg-[#F8F8F7] transition">
-              <div class="flex items-center gap-3">
-                <i data-lucide="bell" class="w-4 h-4"></i> Notifications
-              </div>
+            <button onclick="window.switchTab('settings'); window.switchSettingsSection('notifications');" class="w-full flex items-center justify-between px-4 py-2.5 rounded-2xl font-bold text-xs text-[#808080] hover:bg-[#F8F8F7]">
+              <span class="flex items-center gap-3"><span>🔔</span> Notifications</span>
               <span class="w-5 h-5 bg-[#FFCA40] text-black text-[10px] font-extrabold rounded-full flex items-center justify-center">3</span>
-            </button>
-            <button onclick="alert('SmartPOS Live Support connected.')" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl font-bold text-xs text-[#808080] hover:bg-[#F8F8F7] transition">
-              <i data-lucide="life-buoy" class="w-4 h-4"></i> Support
             </button>
           </div>
         </div>
@@ -245,13 +81,10 @@
       <!-- Staff Profile Card -->
       <div>
         <div class="bg-[#F8F8F7] rounded-3xl p-3.5 flex flex-col items-center text-center border border-[#808080]/10">
-          <div class="relative mb-2">
-            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&h=120&q=80" alt="Avatar" class="w-12 h-12 rounded-full object-cover ring-2 ring-white" />
-            <span class="w-3 h-3 bg-emerald-500 rounded-full border-2 border-white absolute bottom-0 right-0"></span>
-          </div>
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&h=120&q=80" alt="Avatar" class="w-12 h-12 rounded-full object-cover ring-2 ring-white mb-2" />
           <p id="user-display-name" class="font-bold text-black text-xs">Theresa Webb</p>
           <p class="text-[10px] text-[#808080] mt-0.5">Waiter • 4h 56m</p>
-          <button onclick="window.switchTab('settings'); window.switchSettingsSection('profile');" class="w-full mt-3 py-2 bg-white hover:bg-stone-50 border border-[#808080]/15 rounded-xl text-[11px] font-bold text-black transition">
+          <button onclick="window.switchTab('settings'); window.switchSettingsSection('profile');" class="w-full mt-3 py-2 bg-white hover:bg-stone-50 border border-[#808080]/15 rounded-xl text-[11px] font-bold text-black">
             Open profile
           </button>
         </div>
@@ -261,50 +94,29 @@
 
     <!-- RIGHT MAIN WORKSPACE -->
     <main class="flex-1 flex flex-col overflow-hidden bg-white">
-      <!-- Top Header -->
       <header class="h-16 border-b border-[#808080]/15 px-8 flex items-center justify-between shrink-0">
-        <div class="flex items-center gap-3" id="header-breadcrumb-area">
-          <button id="btn-back-breadcrumb" onclick="window.switchTab('catalog')" class="text-[#808080] hover:text-black">
-            <i data-lucide="arrow-left" class="w-4 h-4"></i>
-          </button>
-          <div class="text-xs font-semibold text-[#808080] flex items-center gap-1.5" id="breadcrumb-text">
-            <span>Food & Drinks</span>
-          </div>
+        <div class="text-xs font-semibold text-[#808080]" id="breadcrumb-text">
+          <span>Food & Drinks</span>
         </div>
-
         <div class="flex items-center gap-4">
-          <div class="relative cursor-pointer" onclick="window.switchTab('settings'); window.switchSettingsSection('notifications');">
-            <i data-lucide="bell" class="w-5 h-5 text-black"></i>
-            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#FFCA40] rounded-full ring-2 ring-white"></span>
-          </div>
-          <button class="p-1.5 text-[#808080] hover:text-black rounded-lg transition" onclick="window.switchTab('settings')">
-            <i data-lucide="more-horizontal" class="w-5 h-5 text-black"></i>
-          </button>
+          <button onclick="window.switchTab('settings')" class="w-8 h-8 rounded-full bg-[#F8F8F7] flex items-center justify-center text-xs">⚙️</button>
         </div>
       </header>
 
-      <!-- Viewports -->
       <div class="flex-1 overflow-hidden flex">
         
         <!-- 1. FOOD & DRINKS VIEW -->
         <section id="view-catalog" class="flex-1 flex overflow-hidden">
           <div class="flex-1 flex flex-col p-6 overflow-hidden">
-            <div class="flex items-center justify-between pb-4 gap-4 shrink-0">
-              <div class="flex items-center gap-2 overflow-x-auto hide-scrollbar">
-                <button onclick="window.filterCategory('All')" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-black text-white shadow-sm transition">All</button>
-                <button onclick="window.filterCategory('Cold Drinks')" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-white border border-[#808080]/20 text-[#808080] hover:text-black transition">Cold Drinks</button>
-                <button onclick="window.filterCategory('Burgers')" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-white border border-[#808080]/20 text-[#808080] hover:text-black transition">Burgers</button>
-                <button onclick="window.filterCategory('Pizza')" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-white border border-[#808080]/20 text-[#808080] hover:text-black transition">Pizza</button>
-                <button onclick="window.filterCategory('Wok')" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-white border border-[#808080]/20 text-[#808080] hover:text-black transition">Wok</button>
-                <button onclick="window.filterCategory('Desserts')" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-white border border-[#808080]/20 text-[#808080] hover:text-black transition">Desserts</button>
-                <button onclick="window.filterCategory('Pasta')" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-white border border-[#808080]/20 text-[#808080] hover:text-black transition">Pasta</button>
-              </div>
-
-              <button onclick="window.openMenuManagementModal()" class="px-4 py-2 bg-[#FFCA40] hover:bg-[#e6b537] text-black rounded-xl text-xs font-bold flex items-center gap-1.5 transition shrink-0 shadow-sm">
-                <i data-lucide="plus-circle" class="w-4 h-4"></i> Manage Menu
-              </button>
+            <div class="flex items-center gap-2 overflow-x-auto hide-scrollbar pb-4">
+              <button onclick="window.filterCategory('All')" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-black text-white">All</button>
+              <button onclick="window.filterCategory('Cold Drinks')" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-white border text-[#808080]">Cold Drinks</button>
+              <button onclick="window.filterCategory('Burgers')" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-white border text-[#808080]">Burgers</button>
+              <button onclick="window.filterCategory('Pizza')" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-white border text-[#808080]">Pizza</button>
+              <button onclick="window.filterCategory('Wok')" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-white border text-[#808080]">Wok</button>
+              <button onclick="window.filterCategory('Desserts')" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-white border text-[#808080]">Desserts</button>
+              <button onclick="window.filterCategory('Pasta')" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-white border text-[#808080]">Pasta</button>
             </div>
-
             <div id="items-grid" class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto pr-1 flex-1 hide-scrollbar"></div>
           </div>
 
@@ -312,36 +124,24 @@
           <aside class="w-80 lg:w-96 bg-white border-l border-[#808080]/15 flex flex-col justify-between p-6 shrink-0">
             <div>
               <div class="flex items-center justify-between pb-4 border-b border-[#808080]/15">
-                <div class="flex items-center gap-2">
-                  <i data-lucide="shopping-bag" class="w-4 h-4 text-[#C8161D]"></i>
-                  <h3 class="font-bold text-black text-sm">Active Order</h3>
-                </div>
-                <button onclick="window.clearCart()" class="text-xs text-[#808080] hover:text-[#C8161D] transition font-bold">Clear All</button>
+                <h3 class="font-bold text-black text-sm">🛍️ Active Order</h3>
+                <button onclick="window.clearCart()" class="text-xs text-[#808080] hover:text-[#C8161D] font-bold">Clear</button>
               </div>
-
               <div id="cart-list" class="divide-y divide-[#808080]/10 max-h-[calc(100vh-390px)] overflow-y-auto mt-2 hide-scrollbar">
-                <div class="py-14 text-center text-xs text-[#808080] font-medium">Cart is empty.<br/>Select an item to customize and add.</div>
+                <div class="py-14 text-center text-xs text-[#808080]">Cart is empty.<br/>Click any item to add.</div>
               </div>
             </div>
 
             <div class="pt-4 border-t border-[#808080]/15 space-y-3">
               <div class="space-y-1.5 text-xs text-[#808080] font-medium">
-                <div class="flex justify-between">
-                  <span>Subtotal</span>
-                  <span id="subtotal-val" class="font-bold text-black">$0.00</span>
-                </div>
-                <div class="flex justify-between">
-                  <span id="tax-label">Tax (10%)</span>
-                  <span id="tax-val" class="font-bold text-black">$0.00</span>
-                </div>
-                <div class="flex justify-between text-base font-extrabold text-black pt-1 border-t border-[#808080]/15">
-                  <span>Total Due</span>
-                  <span id="total-val" class="text-[#C8161D] font-mono">$0.00</span>
+                <div class="flex justify-between"><span>Subtotal</span><span id="subtotal-val" class="font-bold text-black">$0.00</span></div>
+                <div class="flex justify-between"><span>Tax (10%)</span><span id="tax-val" class="font-bold text-black">$0.00</span></div>
+                <div class="flex justify-between text-base font-extrabold text-black pt-1 border-t">
+                  <span>Total Due</span><span id="total-val" class="text-[#C8161D] font-mono">$0.00</span>
                 </div>
               </div>
-
-              <button onclick="window.initiateCheckout()" class="w-full py-4 bg-[#FFCA40] hover:bg-[#e6b537] active:scale-[0.98] text-black font-extrabold rounded-2xl shadow-sm transition tracking-wide text-xs uppercase">
-                Proceed to Payment
+              <button onclick="window.checkoutCart()" class="w-full py-4 bg-[#FFCA40] hover:bg-[#e6b537] text-black font-extrabold rounded-2xl text-xs uppercase">
+                Charge Order
               </button>
             </div>
           </aside>
@@ -349,270 +149,101 @@
 
         <!-- 2. DASHBOARD VIEW -->
         <section id="view-dashboard" class="flex-1 p-8 overflow-y-auto hidden">
-          <div class="max-w-6xl mx-auto space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
-              <div class="bg-[#F8F8F7] p-5 rounded-[24px] border border-[#808080]/15">
-                <span class="text-[11px] text-[#808080] font-bold uppercase tracking-wider">Today's Sales</span>
-                <p class="text-2xl font-black text-black mt-2 font-mono">$1,482.00</p>
-                <span class="text-[11px] text-[#C8161D] font-bold">↑ +14.2% vs yesterday</span>
-              </div>
-              <div class="bg-[#F8F8F7] p-5 rounded-[24px] border border-[#808080]/15">
-                <span class="text-[11px] text-[#808080] font-bold uppercase tracking-wider">Completed Bills</span>
-                <p class="text-2xl font-black text-black mt-2 font-mono">108</p>
-                <span class="text-[11px] text-[#808080]">Total settled tickets</span>
-              </div>
-              <div class="bg-[#F8F8F7] p-5 rounded-[24px] border border-[#808080]/15">
-                <span class="text-[11px] text-[#808080] font-bold uppercase tracking-wider">Occupied Tables</span>
-                <p class="text-2xl font-black text-black mt-2 font-mono">5 / 8</p>
-                <span class="text-[11px] text-[#FFCA40] font-black">62.5% Dine-In Load</span>
-              </div>
-              <div class="bg-[#F8F8F7] p-5 rounded-[24px] border border-[#808080]/15">
-                <span class="text-[11px] text-[#808080] font-bold uppercase tracking-wider">Avg Order Value</span>
-                <p class="text-2xl font-black text-black mt-2 font-mono">$13.72</p>
-                <span class="text-[11px] text-[#808080]">Average ticket</span>
-              </div>
+          <h2 class="text-2xl font-black mb-6">Dashboard</h2>
+          <div class="grid grid-cols-4 gap-5">
+            <div class="bg-[#F8F8F7] p-5 rounded-[24px]">
+              <span class="text-xs text-[#808080] font-bold">Today's Sales</span>
+              <p class="text-2xl font-black mt-2 font-mono">$1,482.00</p>
+            </div>
+            <div class="bg-[#F8F8F7] p-5 rounded-[24px]">
+              <span class="text-xs text-[#808080] font-bold">Orders</span>
+              <p class="text-2xl font-black mt-2 font-mono">108</p>
             </div>
           </div>
         </section>
 
-        <!-- 3. MESSAGES VIEW (SCREEN 3) -->
+        <!-- 3. MESSAGES VIEW -->
         <section id="view-messages" class="flex-1 flex overflow-hidden hidden">
-          <div class="w-80 border-r border-[#808080]/15 p-6 flex flex-col justify-between overflow-y-auto shrink-0 bg-white">
-            <div>
-              <div class="flex items-center justify-between mb-4">
-                <h2 class="text-2xl font-black text-black tracking-tight">Messages</h2>
-                <button class="w-8 h-8 rounded-full bg-[#F8F8F7] flex items-center justify-center text-[#808080]">
-                  <i data-lucide="search" class="w-4 h-4"></i>
-                </button>
-              </div>
-
-              <div class="space-y-2 mb-6">
-                <span class="text-[11px] font-bold text-[#808080] uppercase tracking-wider">TEAMS</span>
-                <div class="p-3 bg-[#F8F8F7] rounded-2xl cursor-pointer flex items-center gap-3 border border-[#808080]/10">
-                  <div class="relative">
-                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=80&h=80&q=80" class="w-10 h-10 rounded-full object-cover" />
-                    <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white absolute bottom-0 right-0"></span>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="flex justify-between items-baseline mb-0.5">
-                      <p class="font-bold text-black text-xs truncate">Waiter's Team</p>
-                      <span class="text-[10px] text-[#808080]">Just Now</span>
-                    </div>
-                    <p class="text-[11px] text-[#808080] truncate">Nolan Parker: I have already...</p>
-                  </div>
-                  <span class="w-4 h-4 bg-[#C8161D] text-white text-[9px] font-extrabold rounded-full flex items-center justify-center">7</span>
-                </div>
-              </div>
-
-              <div class="space-y-2">
-                <span class="text-[11px] font-bold text-[#808080] uppercase tracking-wider">PERSONAL</span>
-                <div class="p-3 hover:bg-[#F8F8F7] rounded-2xl cursor-pointer flex items-center gap-3 transition">
-                  <img src="https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=80&h=80&q=80" class="w-10 h-10 rounded-full object-cover" />
-                  <div class="flex-1 min-w-0">
-                    <div class="flex justify-between items-baseline mb-0.5">
-                      <p class="font-bold text-black text-xs truncate">Kolin Holland</p>
-                      <span class="text-[10px] text-[#808080]">5 min ago</span>
-                    </div>
-                    <p class="text-[11px] text-[#808080] truncate">Please let me know when you...</p>
-                  </div>
-                  <span class="w-4 h-4 bg-[#C8161D] text-white text-[9px] font-extrabold rounded-full flex items-center justify-center">1</span>
-                </div>
-              </div>
+          <div class="w-80 border-r p-6 overflow-y-auto bg-white">
+            <h2 class="text-2xl font-black mb-4">Messages</h2>
+            <div class="p-3.5 bg-[#F8F8F7] rounded-2xl cursor-pointer">
+              <p class="font-bold text-xs">Waiter's Team</p>
+              <p class="text-[11px] text-[#808080]">Active chat channel</p>
             </div>
           </div>
-
-          <div class="flex-1 flex flex-col justify-between bg-white overflow-hidden">
-            <div class="px-8 py-4 border-b border-[#808080]/15 flex items-center justify-between shrink-0">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-[#FFCA40] text-black font-extrabold rounded-2xl flex items-center justify-center text-xs">WT</div>
-                <div>
-                  <h3 class="font-extrabold text-black text-sm">Waiter's Team</h3>
-                  <p class="text-[11px] text-[#808080]">8 members, 6 online</p>
-                </div>
-              </div>
-              <div class="flex items-center gap-2 text-[#808080]">
-                <button class="w-8 h-8 rounded-full hover:bg-stone-100 flex items-center justify-center"><i data-lucide="phone" class="w-4 h-4"></i></button>
-                <button class="w-8 h-8 rounded-full hover:bg-stone-100 flex items-center justify-center"><i data-lucide="video" class="w-4 h-4"></i></button>
-              </div>
+          <div class="flex-1 flex flex-col justify-between p-6">
+            <div id="chat-messages-container" class="flex-1 overflow-y-auto space-y-3 text-xs">
+              <div class="bg-[#F8F8F7] p-4 rounded-2xl max-w-md">Hi Guys! Who can take table 5?</div>
+              <div class="bg-[#FFCA40]/40 p-4 rounded-2xl max-w-md ml-auto">I'll take it! 🤘</div>
             </div>
-
-            <div id="chat-messages-container" class="flex-1 overflow-y-auto p-8 space-y-4 text-xs hide-scrollbar">
-              <div class="text-center my-2 text-[10px] text-[#808080] uppercase tracking-wider font-bold">Today</div>
-              <div class="flex items-start gap-3 max-w-lg">
-                <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=60&h=60&q=80" class="w-7 h-7 rounded-full object-cover mt-1" />
-                <div>
-                  <div class="bg-[#F8F8F7] text-black p-4 rounded-3xl rounded-tl-none font-medium">
-                    Hi Guys! We urgently need a person for the fifth table. Who can take the order?
-                  </div>
-                  <span class="text-[10px] text-[#808080] mt-1 block">9:45</span>
-                </div>
-              </div>
-              <div class="flex flex-col items-end max-w-lg ml-auto">
-                <div class="bg-[#FFCA40]/40 text-black p-4 rounded-3xl rounded-tr-none font-medium">
-                  I can't take the order now, I have a lot of work 🥺
-                </div>
-                <div class="flex items-center gap-1 mt-1 text-[10px] text-[#808080]">
-                  <span>9:56</span>
-                  <i data-lucide="check-check" class="w-3.5 h-3.5 text-emerald-600"></i>
-                </div>
-              </div>
-            </div>
-
-            <form onsubmit="event.preventDefault(); window.sendLiveChatMessage();" class="p-6 border-t border-[#808080]/15 flex items-center gap-3 shrink-0">
-              <input type="text" id="live-chat-input" placeholder="Write a message..." required
-                class="flex-1 px-5 py-3.5 bg-[#F8F8F7] border border-[#808080]/15 rounded-2xl text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FFCA40]" />
-              <button type="submit" class="w-11 h-11 bg-[#FFCA40] hover:bg-[#e6b537] text-black rounded-2xl flex items-center justify-center shadow-sm">
-                <i data-lucide="send" class="w-4 h-4"></i>
-              </button>
+            <form onsubmit="event.preventDefault(); window.sendChatMessage();" class="pt-4 flex gap-2">
+              <input type="text" id="chat-input" placeholder="Type a message..." class="flex-1 px-4 py-3 bg-[#F8F8F7] rounded-2xl text-xs outline-none" />
+              <button type="submit" class="px-5 py-3 bg-[#FFCA40] font-bold text-xs rounded-2xl">Send</button>
             </form>
           </div>
         </section>
 
-        <!-- 4. BILLS VIEW (SCREEN 2) -->
+        <!-- 4. BILLS VIEW -->
         <section id="view-bills" class="flex-1 flex overflow-hidden hidden">
-          <div class="w-80 border-r border-[#808080]/15 p-6 flex flex-col justify-between overflow-y-auto shrink-0 bg-white">
-            <div>
-              <div class="flex items-center justify-between mb-4">
-                <h2 class="text-2xl font-black text-black tracking-tight">Bills</h2>
-                <button onclick="alert('New bill added.')" class="w-8 h-8 rounded-full bg-[#F8F8F7] flex items-center justify-center font-bold text-black">+</button>
-              </div>
-
-              <div class="space-y-2.5">
-                <div onclick="window.selectOrderInspection(35)" id="billcard-35" class="p-3.5 bg-[#F8F8F7] rounded-2xl cursor-pointer border-2 border-[#FFCA40]">
-                  <div class="flex justify-between items-center mb-1">
-                    <span class="font-extrabold text-black text-xs">Order #35 • Active</span>
-                    <span class="font-black text-black text-xs font-mono">$42</span>
-                  </div>
-                  <div class="flex justify-between text-[11px] text-[#808080]">
-                    <span>Table 2B • 2 guests</span>
-                    <span>14:30</span>
-                  </div>
-                </div>
-                <div onclick="window.selectOrderInspection(36)" id="billcard-36" class="p-3.5 hover:bg-[#F8F8F7] rounded-2xl cursor-pointer border border-[#808080]/15">
-                  <div class="flex justify-between items-center mb-1">
-                    <span class="font-extrabold text-black text-xs">Order #36 • Active</span>
-                    <span class="font-black text-black text-xs font-mono">$56</span>
-                  </div>
-                  <div class="flex justify-between text-[11px] text-[#808080]">
-                    <span>Table 1B • 3 guests</span>
-                    <span>14:25</span>
-                  </div>
-                </div>
-              </div>
+          <div class="w-80 border-r p-6 overflow-y-auto bg-white">
+            <h2 class="text-2xl font-black mb-4">Bills</h2>
+            <div onclick="window.selectBill(35)" class="p-3.5 bg-[#F8F8F7] rounded-2xl border-2 border-[#FFCA40] cursor-pointer mb-2">
+              <div class="flex justify-between font-bold text-xs"><span>Order #35</span><span>$14.71</span></div>
+              <span class="text-[10px] text-[#808080]">Table 2B • 2 guests</span>
+            </div>
+            <div onclick="window.selectBill(36)" class="p-3.5 hover:bg-[#F8F8F7] rounded-2xl border cursor-pointer">
+              <div class="flex justify-between font-bold text-xs"><span>Order #36</span><span>$56.00</span></div>
+              <span class="text-[10px] text-[#808080]">Table 1B • 3 guests</span>
             </div>
           </div>
-
-          <div class="flex-1 p-8 flex flex-col justify-between overflow-y-auto bg-white">
+          <div class="flex-1 p-8 flex flex-col justify-between">
             <div>
-              <div class="flex items-center justify-between pb-6 border-b border-[#808080]/15">
-                <h2 id="inspect-order-title" class="text-2xl font-black text-black">Order #35</h2>
-                <span id="inspect-order-badge" class="px-3 py-1 bg-[#FFCA40] text-black font-extrabold text-xs rounded-full">Active</span>
-              </div>
-              <div class="py-6 grid grid-cols-4 gap-4 text-xs font-bold text-black">
-                <div><span class="text-[11px] text-[#808080] font-normal block mb-1">Table</span><span id="inspect-table">2B</span></div>
-                <div><span class="text-[11px] text-[#808080] font-normal block mb-1">Guests</span><span id="inspect-guests">2</span></div>
-                <div><span class="text-[11px] text-[#808080] font-normal block mb-1">Customer</span><span id="inspect-customer">Kate Woods</span></div>
-                <div><span class="text-[11px] text-[#808080] font-normal block mb-1">Payment</span><span id="inspect-payment">By Cash</span></div>
-              </div>
-              <div class="pt-4 border-t border-[#808080]/15 space-y-3 text-xs font-bold">
-                <div class="flex justify-between"><span>1x Hamburger</span><span class="font-mono">$4.50</span></div>
-                <div class="flex justify-between"><span>2x Latte</span><span class="font-mono">$5.00</span></div>
-                <div class="flex justify-between"><span>2x Chocolate Donut</span><span class="font-mono">$2.00</span></div>
-                <div class="flex justify-between"><span>1x Tomato Cream Soup</span><span class="font-mono">$3.21</span></div>
-                <div class="flex justify-between pt-4 border-t border-[#808080]/15 font-black text-base">
-                  <span>Total</span>
-                  <span id="inspect-total" class="font-mono">$14.71</span>
+              <h3 id="bill-detail-title" class="text-2xl font-black mb-4">Order #35</h3>
+              <p class="text-xs text-[#808080] mb-6">Customer: Kate Woods • Table: 2B</p>
+              <div class="space-y-3 text-xs font-bold border-t pt-4">
+                <div class="flex justify-between"><span>1x Hamburger</span><span>$4.50</span></div>
+                <div class="flex justify-between"><span>2x Latte</span><span>$5.00</span></div>
+                <div class="flex justify-between"><span>2x Chocolate Donut</span><span>$2.00</span></div>
+                <div class="flex justify-between font-black text-base border-t pt-2">
+                  <span>Total</span><span id="bill-detail-total">$14.71</span>
                 </div>
               </div>
             </div>
-            <button onclick="window.chargeInspectedCustomer()" id="btn-charge-customer" class="w-full py-4 bg-[#FFCA40] hover:bg-[#e6b537] text-black font-extrabold rounded-2xl shadow-sm text-xs">
+            <button onclick="alert('Charged successfully!')" id="btn-bill-charge" class="w-full py-4 bg-[#FFCA40] font-extrabold rounded-2xl text-xs">
               Charge customer $14.71
             </button>
           </div>
         </section>
 
-        <!-- 5. SETTINGS VIEW (SCREEN 1) -->
+        <!-- 5. SETTINGS VIEW -->
         <section id="view-settings" class="flex-1 p-8 overflow-y-auto hidden">
-          <div class="max-w-5xl mx-auto flex gap-10">
-            <div class="w-64 space-y-1 select-none shrink-0">
-              <h2 class="text-2xl font-black text-black mb-4">Settings</h2>
-              <button onclick="window.switchSettingsSection('profile')" id="setnav-profile" class="setnav-btn w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold text-[#808080] hover:bg-[#F8F8F7]">
-                <div class="flex items-center gap-3"><i data-lucide="user" class="w-4 h-4"></i><span>Profile</span></div>
-              </button>
-              <button onclick="window.switchSettingsSection('notifications')" id="setnav-notifications" class="setnav-btn w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold text-black bg-[#F8F8F7]">
-                <div class="flex items-center gap-3"><i data-lucide="bell" class="w-4 h-4 text-black"></i><span>Notifications</span></div>
-                <span class="indicator-bar w-1 h-5 bg-[#FFCA40] rounded-full block"></span>
-              </button>
-              <button onclick="window.switchSettingsSection('appearance')" id="setnav-appearance" class="setnav-btn w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold text-[#808080] hover:bg-[#F8F8F7]">
-                <div class="flex items-center gap-3"><i data-lucide="sun" class="w-4 h-4"></i><span>Appearance</span></div>
-              </button>
-              <button onclick="window.switchSettingsSection('checkout')" id="setnav-checkout" class="setnav-btn w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold text-[#808080] hover:bg-[#F8F8F7]">
-                <div class="flex items-center gap-3"><i data-lucide="sliders" class="w-4 h-4"></i><span>Checkout settings</span></div>
-              </button>
-              <button onclick="window.switchSettingsSection('security')" id="setnav-security" class="setnav-btn w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold text-[#808080] hover:bg-[#F8F8F7]">
-                <div class="flex items-center gap-3"><i data-lucide="shield" class="w-4 h-4"></i><span>Security</span></div>
-              </button>
-              <button onclick="window.switchSettingsSection('language')" id="setnav-language" class="setnav-btn w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold text-[#808080] hover:bg-[#F8F8F7]">
-                <div class="flex items-center gap-3"><i data-lucide="globe" class="w-4 h-4"></i><span>Language & Region</span></div>
-              </button>
+          <div class="max-w-4xl mx-auto flex gap-10">
+            <div class="w-56 space-y-1">
+              <h2 class="text-2xl font-black mb-4">Settings</h2>
+              <button onclick="window.switchSettingsSection('notifications')" id="setnav-notifications" class="w-full text-left px-4 py-3 rounded-2xl text-xs font-bold bg-[#F8F8F7]">Notifications</button>
+              <button onclick="window.switchSettingsSection('appearance')" id="setnav-appearance" class="w-full text-left px-4 py-3 rounded-2xl text-xs font-bold text-[#808080] hover:bg-[#F8F8F7]">Appearance</button>
+              <button onclick="window.switchSettingsSection('profile')" id="setnav-profile" class="w-full text-left px-4 py-3 rounded-2xl text-xs font-bold text-[#808080] hover:bg-[#F8F8F7]">Profile</button>
             </div>
-
-            <div class="flex-1 bg-white rounded-[32px] border border-[#808080]/15 p-8 min-h-[560px] flex flex-col justify-between">
-              <!-- Notifications Pane (Screen 1 Table) -->
-              <div id="subsetting-notifications" class="subsetting-pane space-y-6">
-                <div>
-                  <h3 class="text-xl font-bold text-black">Notifications</h3>
-                  <p class="text-xs text-[#808080] mt-1">Select the notifications you want to receive</p>
+            <div class="flex-1 bg-white p-8 rounded-3xl border">
+              <div id="subsetting-notifications" class="space-y-4">
+                <h3 class="text-xl font-bold">Notifications</h3>
+                <div class="flex items-center justify-between text-xs font-bold py-2 border-b">
+                  <span>Order alerts</span>
+                  <label class="switch"><input type="checkbox" checked /><span class="slider"></span></label>
                 </div>
-                <div class="pt-2">
-                  <div class="grid grid-cols-12 text-xs font-bold text-[#808080] pb-3 border-b border-[#808080]/10">
-                    <div class="col-span-6">Notification</div>
-                    <div class="col-span-3 text-center">Push</div>
-                    <div class="col-span-3 text-center">Email</div>
-                  </div>
-                  <div class="divide-y divide-[#808080]/10 text-xs font-bold text-black">
-                    <div class="grid grid-cols-12 items-center py-4">
-                      <div class="col-span-6">New messages</div>
-                      <div class="col-span-3 flex justify-center"><label class="switch"><input type="checkbox" checked /><span class="slider"></span></label></div>
-                      <div class="col-span-3 flex justify-center"><label class="switch"><input type="checkbox" /><span class="slider"></span></label></div>
-                    </div>
-                    <div class="grid grid-cols-12 items-center py-4">
-                      <div class="col-span-6">Weelky report</div>
-                      <div class="col-span-3 flex justify-center"><label class="switch"><input type="checkbox" /><span class="slider"></span></label></div>
-                      <div class="col-span-3 flex justify-center"><label class="switch"><input type="checkbox" checked /><span class="slider"></span></label></div>
-                    </div>
-                    <div class="grid grid-cols-12 items-center py-4">
-                      <div class="col-span-6">Payment success</div>
-                      <div class="col-span-3 flex justify-center"><label class="switch"><input type="checkbox" checked /><span class="slider"></span></label></div>
-                      <div class="col-span-3 flex justify-center"><label class="switch"><input type="checkbox" /><span class="slider"></span></label></div>
-                    </div>
-                  </div>
+                <div class="flex items-center justify-between text-xs font-bold py-2">
+                  <span>Payment confirmations</span>
+                  <label class="switch"><input type="checkbox" checked /><span class="slider"></span></label>
                 </div>
               </div>
-
-              <!-- Profile Pane -->
-              <div id="subsetting-profile" class="subsetting-pane space-y-6 hidden">
-                <h3 class="text-xl font-bold text-black">Profile</h3>
-                <div class="space-y-4 max-w-md">
-                  <div>
-                    <span class="text-xs text-[#808080]">Active Session</span>
-                    <p id="settings-email-display" class="font-bold text-black text-sm">ratanayorng@gmail.com</p>
-                  </div>
-                  <input type="password" id="settings-new-password" placeholder="New password" class="w-full px-4 py-3 bg-[#F8F8F7] border rounded-2xl text-xs" />
-                  <button onclick="window.submitPasswordChange()" class="px-5 py-3 bg-black text-white font-bold text-xs rounded-2xl">Update Password</button>
-                  <div><button onclick="window.handleSignOut()" class="text-xs font-bold text-[#C8161D]">Sign Out</button></div>
-                </div>
+              <div id="subsetting-appearance" class="space-y-4 hidden">
+                <h3 class="text-xl font-bold">Appearance</h3>
+                <p class="text-xs text-[#808080]">Light theme is currently active.</p>
               </div>
-
-              <div id="subsetting-appearance" class="subsetting-pane space-y-4 hidden"><h3 class="text-xl font-bold">Appearance</h3><p class="text-xs text-[#808080]">Light theme enabled.</p></div>
-              <div id="subsetting-checkout" class="subsetting-pane space-y-4 hidden"><h3 class="text-xl font-bold">Checkout settings</h3><p class="text-xs text-[#808080]">Cash & Card payments active.</p></div>
-              <div id="subsetting-security" class="subsetting-pane space-y-4 hidden"><h3 class="text-xl font-bold">Security</h3><p class="text-xs text-[#808080]">Device active now.</p></div>
-              <div id="subsetting-language" class="subsetting-pane space-y-4 hidden"><h3 class="text-xl font-bold">Language</h3><p class="text-xs text-[#808080]">English (US)</p></div>
-
-              <div class="pt-6 border-t border-[#808080]/15">
-                <button onclick="alert('Settings saved successfully!')" class="w-full py-4 bg-[#FFCA40] hover:bg-[#e6b537] text-black font-extrabold rounded-2xl text-xs">
-                  Save Changes
-                </button>
+              <div id="subsetting-profile" class="space-y-4 hidden">
+                <h3 class="text-xl font-bold">Profile</h3>
+                <p class="text-xs text-[#808080]">Logged in as ratanayorng@gmail.com</p>
+                <button onclick="alert('Signed out')" class="text-xs font-bold text-red-600">Sign out</button>
               </div>
             </div>
           </div>
@@ -622,97 +253,17 @@
     </main>
   </div>
 
-  <!-- ================= PRODUCT CUSTOMIZATION MODAL ================= -->
-  <div id="customize-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-[32px] w-full max-w-md p-6 shadow-2xl border border-[#808080]/15">
-      <div class="flex items-start justify-between pb-4 border-b border-[#808080]/15">
-        <div class="flex items-center gap-3">
-          <div id="cust-item-icon" class="text-3xl">☕</div>
-          <div>
-            <h3 id="cust-item-name" class="font-bold text-black text-base">Item Name</h3>
-            <p id="cust-item-base-price" class="text-xs font-bold text-[#C8161D] font-mono">$0.00</p>
-          </div>
-        </div>
-        <button onclick="window.closeCustomizerModal()" class="text-[#808080] hover:text-black p-1 font-bold">✕</button>
-      </div>
-
-      <div class="py-4 space-y-4 text-xs">
-        <div id="drink-modifiers" class="space-y-3">
-          <div>
-            <label class="block font-bold text-black mb-1.5">Sweetness Level</label>
-            <div class="grid grid-cols-4 gap-2 font-bold">
-              <button type="button" onclick="window.setSweetness(this, '0%')" class="btn-opt px-3 py-2 rounded-xl border text-[#808080]">0%</button>
-              <button type="button" onclick="window.setSweetness(this, '50%')" class="btn-opt px-3 py-2 rounded-xl border text-[#808080]">50%</button>
-              <button type="button" onclick="window.setSweetness(this, '70%')" class="btn-opt px-3 py-2 rounded-xl border-2 border-[#FFCA40] bg-[#FFCA40]/20 text-black font-extrabold">70%</button>
-              <button type="button" onclick="window.setSweetness(this, '100%')" class="btn-opt px-3 py-2 rounded-xl border text-[#808080]">100%</button>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <label class="block font-bold text-black mb-1.5">Extra Add-ons</label>
-          <div class="space-y-2">
-            <label class="flex items-center justify-between p-2.5 rounded-2xl bg-[#F8F8F7] cursor-pointer">
-              <span class="flex items-center gap-2 font-semibold text-black"><input type="checkbox" id="addon-shot" value="0.75" onchange="window.calculateCustTotal()" class="rounded text-[#C8161D] w-4 h-4" /> Extra Espresso Shot</span>
-              <span class="font-bold text-[#C8161D] font-mono">+$0.75</span>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <div class="pt-3 border-t border-[#808080]/15 flex items-center justify-between">
-        <div>
-          <span class="text-[11px] text-[#808080]">Calculated Total</span>
-          <p id="cust-modal-total" class="text-xl font-black text-black font-mono">$0.00</p>
-        </div>
-        <button onclick="window.commitCustomizedItemToCart()" class="px-6 py-3.5 bg-[#FFCA40] hover:bg-[#e6b537] text-black font-extrabold rounded-2xl">
-          Add to Cart
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ================= CHECKOUT MODAL ================= -->
-  <div id="checkout-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-[32px] w-full max-w-md p-6 shadow-2xl border border-[#808080]/15">
-      <div class="flex items-center justify-between pb-3 border-b border-[#808080]/15">
-        <h3 class="font-bold text-black text-base">Payment Checkout</h3>
-        <button onclick="window.closeCheckoutModal()" class="text-[#808080] hover:text-black">✕</button>
-      </div>
-
-      <div class="py-4 space-y-4 text-xs">
-        <div class="bg-[#F8F8F7] p-4 rounded-2xl flex justify-between items-center">
-          <div>
-            <span class="text-[#808080]">Total Due</span>
-            <p id="checkout-modal-amount" class="text-3xl font-black text-[#C8161D] font-mono">$0.00</p>
-          </div>
-          <span class="px-3.5 py-1 bg-[#FFCA40] rounded-full font-bold text-black">Takeaway</span>
-        </div>
-      </div>
-
-      <button onclick="window.finalizePaymentAndPrint()" class="w-full py-4 bg-[#FFCA40] hover:bg-[#e6b537] text-black font-extrabold rounded-2xl">
-        Confirm Payment & Print Receipt
-      </button>
-    </div>
-  </div>
-
-  <!-- ================= JAVASCRIPT CONTROLLER (ALL FUNCTIONS BOUND TO WINDOW) ================= -->
+  <!-- ================= BULLETPROOF LOGIC SCRIPT ================= -->
+  <!-- Line 213 -->
+  <!-- ================= BULLETPROOF LOGIC SCRIPT ================= -->
   <script>
-    // 1. SUPABASE CLIENT
     const SUPABASE_URL = "https://pbsrwpysykxqwegcayjq.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBic3J3cHlzeWt4cXdlZ2NheWpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3NjcwNDYsImV4cCI6MjEwNTM0MzA0Nn0.e4gRaGMWzGG0eApOI_tcLvjBZLDtTlAVsq8DGBqhExY";
 
-    let supabaseClient = null;
-    try {
-      if (window.supabase && typeof window.supabase.createClient === 'function') {
-        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      }
-    } catch (e) {
-      console.warn("Supabase init bypassed, local mode active", e);
-    }
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // 2. DATA REGISTRY
-    const INITIAL_CATALOG = [
+    // Self-contained data
+    const MENU = [
       { id: 1, name: "Iced Caramel Macchiato", category: "Cold Drinks", price: 4.50, icon: "🥤" },
       { id: 2, name: "Cold Brew Reserve", category: "Cold Drinks", price: 4.00, icon: "🧊" },
       { id: 3, name: "Iced Matcha Latte", category: "Cold Drinks", price: 4.75, icon: "🍵" },
@@ -728,166 +279,112 @@
       { id: 13, name: "Pesto Genovese", category: "Pasta", price: 11.00, icon: "🌿" }
     ];
 
-    let MENU_ITEMS = INITIAL_CATALOG;
     let cart = [];
-    let activeCategory = "All";
-    let customizingItem = null;
-    let selectedSweetness = "70%";
+    let currentCat = "All";
 
-    // 3. ATTACH ALL HANDLERS GLOBALLY TO WINDOW OBJECT
-    window.switchTab = function(tabId) {
+    // 1. Tab Switching
+    window.switchTab = function(tab) {
       ['catalog', 'dashboard', 'messages', 'bills', 'settings'].forEach(t => {
         const el = document.getElementById(`view-${t}`);
+        const btn = document.getElementById(`nav-${t}`);
         if (el) el.classList.add('hidden');
-        const nav = document.getElementById(`nav-${t}`);
-        if (nav) nav.className = "nav-item w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition text-[#808080] hover:bg-[#F8F8F7]";
+        if (btn) btn.className = "nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs text-[#808080] hover:bg-[#F8F8F7]";
       });
 
-      const activeEl = document.getElementById(`view-${tabId}`);
-      if (activeEl) activeEl.classList.remove('hidden');
+      const activeView = document.getElementById(`view-${tab}`);
+      const activeBtn = document.getElementById(`nav-${tab}`);
+      if (activeView) activeView.classList.remove('hidden');
+      if (activeBtn) activeBtn.className = "nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs bg-[#FFCA40] text-black shadow-sm";
 
-      const activeNav = document.getElementById(`nav-${tabId}`);
-      if (activeNav) activeNav.className = "nav-item w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition bg-[#FFCA40] text-black shadow-sm";
-
-      const breadcrumb = document.getElementById("breadcrumb-text");
-      const titleMap = {
-        catalog: "Food & Drinks",
-        dashboard: "Dashboard",
-        messages: "Messages > Waiter's Team chat",
-        bills: "Bills > Order #35",
-        settings: "Settings > Notifications"
-      };
-      if (breadcrumb && titleMap[tabId]) breadcrumb.innerHTML = `<span>${titleMap[tabId]}</span>`;
-      lucide.createIcons();
+      const bc = document.getElementById("breadcrumb-text");
+      if (bc) bc.textContent = tab.charAt(0).toUpperCase() + tab.slice(1);
     };
 
-    window.switchSettingsSection = function(sectionId) {
-      document.querySelectorAll('.subsetting-pane').forEach(el => el.classList.add('hidden'));
-      document.querySelectorAll('.setnav-btn').forEach(btn => {
-        btn.className = "setnav-btn w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold text-[#808080] hover:bg-[#F8F8F7]";
-        const bar = btn.querySelector('.indicator-bar');
-        if (bar) bar.classList.add('hidden');
+    // 2. Settings Switching
+    window.switchSettingsSection = function(sub) {
+      ['notifications', 'appearance', 'profile'].forEach(s => {
+        const pane = document.getElementById(`subsetting-${s}`);
+        const btn = document.getElementById(`setnav-${s}`);
+        if (pane) pane.classList.add('hidden');
+        if (btn) btn.className = "w-full text-left px-4 py-3 rounded-2xl text-xs font-bold text-[#808080] hover:bg-[#F8F8F7]";
       });
-
-      const target = document.getElementById(`subsetting-${sectionId}`);
-      if (target) target.classList.remove('hidden');
-
-      const activeBtn = document.getElementById(`setnav-${sectionId}`);
-      if (activeBtn) {
-        activeBtn.className = "setnav-btn w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold text-black bg-[#F8F8F7]";
-        const bar = activeBtn.querySelector('.indicator-bar');
-        if (bar) bar.classList.remove('hidden');
-      }
-      lucide.createIcons();
+      const activePane = document.getElementById(`subsetting-${sub}`);
+      const activeBtn = document.getElementById(`setnav-${sub}`);
+      if (activePane) activePane.classList.remove('hidden');
+      if (activeBtn) activeBtn.className = "w-full text-left px-4 py-3 rounded-2xl text-xs font-bold bg-[#F8F8F7] text-black";
     };
 
+    // 3. Category Filter
     window.filterCategory = function(cat) {
-      activeCategory = cat;
-      document.querySelectorAll(".cat-pill").forEach(btn => {
+      currentCat = cat;
+      document.querySelectorAll('.cat-pill').forEach(btn => {
         if (btn.textContent === cat) {
-          btn.className = "cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-black text-white shadow-sm transition";
+          btn.className = "cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-black text-white";
         } else {
-          btn.className = "cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-white border border-[#808080]/20 text-[#808080] hover:text-black transition";
+          btn.className = "cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-white border text-[#808080]";
         }
       });
       window.renderCatalog();
     };
 
+    // 4. Catalog Render
     window.renderCatalog = function() {
       const grid = document.getElementById("items-grid");
       if (!grid) return;
-      const filtered = activeCategory === "All" ? MENU_ITEMS : MENU_ITEMS.filter(i => i.category === activeCategory);
-      
-      grid.innerHTML = filtered.map(item => `
-        <div onclick="window.openItemCustomizer(${item.id})" class="bg-white p-5 rounded-[24px] border border-[#808080]/15 hover:border-[#FFCA40] hover:shadow-lg transition-all cursor-pointer flex flex-col justify-between group">
+      const items = currentCat === "All" ? MENU : MENU.filter(i => i.category === currentCat);
+      grid.innerHTML = items.map(item => `
+        <div onclick="window.addToCart(${item.id})" class="bg-white p-5 rounded-[24px] border border-[#808080]/15 hover:border-[#FFCA40] cursor-pointer flex flex-col justify-between">
           <div>
-            <span class="text-3xl mb-2 group-hover:scale-110 transition-transform block">${item.icon}</span>
-            <h4 class="font-bold text-black text-sm leading-snug mt-1">${item.name}</h4>
-            <span class="text-[11px] text-[#808080] font-semibold">${item.category}</span>
+            <span class="text-3xl block mb-2">${item.icon}</span>
+            <h4 class="font-bold text-sm">${item.name}</h4>
+            <span class="text-[11px] text-[#808080]">${item.category}</span>
           </div>
-          <div class="mt-4 flex items-center justify-between">
-            <span class="font-bold text-black text-sm font-mono">$${item.price.toFixed(2)}</span>
-            <span class="w-8 h-8 bg-[#F8F8F7] group-hover:bg-[#FFCA40] group-hover:text-black rounded-xl flex items-center justify-center text-sm font-black transition">+</span>
+          <div class="mt-4 flex justify-between items-center">
+            <span class="font-bold text-sm font-mono">$${item.price.toFixed(2)}</span>
+            <span class="w-8 h-8 bg-[#F8F8F7] rounded-xl flex items-center justify-center font-bold">+</span>
           </div>
         </div>
       `).join('');
-      lucide.createIcons();
     };
 
-    window.openItemCustomizer = function(id) {
-      const item = MENU_ITEMS.find(i => i.id === id);
-      if (!item) return;
-      customizingItem = item;
-
-      document.getElementById("cust-item-icon").textContent = item.icon;
-      document.getElementById("cust-item-name").textContent = item.name;
-      document.getElementById("cust-item-base-price").textContent = `$${item.price.toFixed(2)}`;
-      document.getElementById("addon-shot").checked = false;
-
-      window.calculateCustTotal();
-      document.getElementById("customize-modal").classList.remove("hidden");
+    // 5. Cart Functions
+    window.addToCart = function(id) {
+      const item = MENU.find(i => i.id === id);
+      const existing = cart.find(c => c.id === id);
+      if (existing) existing.qty += 1;
+      else cart.push({ ...item, qty: 1 });
+      window.updateCart();
     };
 
-    window.closeCustomizerModal = function() {
-      document.getElementById("customize-modal").classList.add("hidden");
-      customizingItem = null;
-    };
-
-    window.setSweetness = function(btn, val) {
-      selectedSweetness = val;
-      document.querySelectorAll(".btn-opt").forEach(b => b.className = "btn-opt px-3 py-2 rounded-xl border text-[#808080]");
-      btn.className = "btn-opt px-3 py-2 rounded-xl border-2 border-[#FFCA40] bg-[#FFCA40]/20 text-black font-extrabold";
-    };
-
-    window.calculateCustTotal = function() {
-      if (!customizingItem) return 0;
-      let total = customizingItem.price;
-      if (document.getElementById("addon-shot").checked) total += 0.75;
-      document.getElementById("cust-modal-total").textContent = `$${total.toFixed(2)}`;
-      return total;
-    };
-
-    window.commitCustomizedItemToCart = function() {
-      if (!customizingItem) return;
-      const unitPrice = window.calculateCustTotal();
-      cart.push({
-        id: customizingItem.id,
-        name: customizingItem.name,
-        price: unitPrice,
-        qty: 1
-      });
-      window.updateCartUI();
-      window.closeCustomizerModal();
-    };
-
-    window.updateQty = function(index, delta) {
-      if (!cart[index]) return;
-      cart[index].qty += delta;
-      if (cart[index].qty <= 0) cart.splice(index, 1);
-      window.updateCartUI();
+    window.updateQty = function(id, delta) {
+      const entry = cart.find(c => c.id === id);
+      if (!entry) return;
+      entry.qty += delta;
+      if (entry.qty <= 0) cart = cart.filter(c => c.id !== id);
+      window.updateCart();
     };
 
     window.clearCart = function() {
       cart = [];
-      window.updateCartUI();
+      window.updateCart();
     };
 
-    window.updateCartUI = function() {
-      const cartList = document.getElementById("cart-list");
-      if (!cartList) return;
+    window.updateCart = function() {
+      const list = document.getElementById("cart-list");
+      if (!list) return;
       if (cart.length === 0) {
-        cartList.innerHTML = `<div class="py-14 text-center text-xs text-[#808080] font-medium">Cart is empty.<br/>Select an item to customize and add.</div>`;
+        list.innerHTML = `<div class="py-14 text-center text-xs text-[#808080]">Cart is empty.<br/>Click any item to add.</div>`;
       } else {
-        cartList.innerHTML = cart.map((item, idx) => `
-          <div class="py-3 flex items-start justify-between text-xs">
-            <div class="flex-1 pr-2">
-              <p class="font-bold text-black">${item.name}</p>
-              <p class="text-[#C8161D] font-bold font-mono mt-0.5">$${item.price.toFixed(2)}</p>
+        list.innerHTML = cart.map(i => `
+          <div class="py-3 flex justify-between items-center text-xs">
+            <div>
+              <p class="font-bold">${i.name}</p>
+              <p class="text-[#C8161D] font-mono">$${i.price.toFixed(2)}</p>
             </div>
-            <div class="flex items-center gap-1.5 mt-1">
-              <button onclick="window.updateQty(${idx}, -1)" class="w-6 h-6 rounded-lg bg-[#F8F8F7] font-bold">-</button>
-              <span class="font-bold text-black w-4 text-center font-mono">${item.qty}</span>
-              <button onclick="window.updateQty(${idx}, 1)" class="w-6 h-6 rounded-lg bg-[#F8F8F7] font-bold">+</button>
+            <div class="flex items-center gap-2">
+              <button onclick="window.updateQty(${i.id}, -1)" class="w-6 h-6 bg-[#F8F8F7] font-bold rounded">-</button>
+              <span class="font-bold">${i.qty}</span>
+              <button onclick="window.updateQty(${i.id}, 1)" class="w-6 h-6 bg-[#F8F8F7] font-bold rounded">+</button>
             </div>
           </div>
         `).join('');
@@ -902,124 +399,33 @@
       document.getElementById("total-val").textContent = `$${total.toFixed(2)}`;
     };
 
-    window.initiateCheckout = function() {
+    window.checkoutCart = function() {
       if (cart.length === 0) return alert("Cart is empty!");
-      document.getElementById("checkout-modal-amount").textContent = document.getElementById("total-val").textContent;
-      document.getElementById("checkout-modal").classList.remove("hidden");
-    };
-
-    window.closeCheckoutModal = function() {
-      document.getElementById("checkout-modal").classList.add("hidden");
-    };
-
-    window.finalizePaymentAndPrint = function() {
-      alert("Payment settled! Receipt sent to terminal printer.");
-      window.closeCheckoutModal();
+      alert(`Charged ${document.getElementById("total-val").textContent}! Order sent to kitchen.`);
       window.clearCart();
     };
 
-    window.selectOrderInspection = function(id) {
-      const orders = {
-        35: { title: "Order #35", badge: "Active", table: "2B", guests: "2", customer: "Kate Woods", payment: "By Cash", total: "$14.71" },
-        36: { title: "Order #36", badge: "Active", table: "1B", guests: "3", customer: "Liam Smith", payment: "By Card", total: "$56.00" }
-      };
-      const ord = orders[id] || orders[35];
-      document.getElementById("inspect-order-title").textContent = ord.title;
-      document.getElementById("inspect-order-badge").textContent = ord.badge;
-      document.getElementById("inspect-table").textContent = ord.table;
-      document.getElementById("inspect-guests").textContent = ord.guests;
-      document.getElementById("inspect-customer").textContent = ord.customer;
-      document.getElementById("inspect-payment").textContent = ord.payment;
-      document.getElementById("inspect-total").textContent = ord.total;
-      document.getElementById("btn-charge-customer").textContent = `Charge customer ${ord.total}`;
-
-      [35, 36].forEach(num => {
-        const c = document.getElementById(`billcard-${num}`);
-        if (c) c.className = num === id ? "p-3.5 bg-[#F8F8F7] rounded-2xl cursor-pointer border-2 border-[#FFCA40]" : "p-3.5 hover:bg-[#F8F8F7] rounded-2xl cursor-pointer border border-[#808080]/15";
-      });
+    // 6. Bills Inspection
+    window.selectBill = function(id) {
+      const is35 = id === 35;
+      document.getElementById("bill-detail-title").textContent = is35 ? "Order #35" : "Order #36";
+      document.getElementById("bill-detail-total").textContent = is35 ? "$14.71" : "$56.00";
+      document.getElementById("btn-bill-charge").textContent = is35 ? "Charge customer $14.71" : "Charge customer $56.00";
     };
 
-    window.chargeInspectedCustomer = function() {
-      const order = document.getElementById("inspect-order-title").textContent;
-      const total = document.getElementById("inspect-total").textContent;
-      alert(`Customer for ${order} successfully charged ${total}!`);
-    };
-
-    window.sendLiveChatMessage = function() {
-      const input = document.getElementById("live-chat-input");
-      const text = input.value.trim();
-      if (!text) return;
+    // 7. Chat Messages
+    window.sendChatMessage = function() {
+      const input = document.getElementById("chat-input");
+      if (!input || !input.value.trim()) return;
       const container = document.getElementById("chat-messages-container");
-      const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      container.innerHTML += `
-        <div class="flex flex-col items-end max-w-lg ml-auto">
-          <div class="bg-[#FFCA40]/40 text-black p-4 rounded-3xl rounded-tr-none font-medium">${text}</div>
-          <div class="flex items-center gap-1 mt-1 text-[10px] text-[#808080]"><span>${now}</span></div>
-        </div>
-      `;
+      container.innerHTML += `<div class="bg-[#FFCA40]/40 p-4 rounded-2xl max-w-md ml-auto">${input.value.trim()}</div>`;
       input.value = "";
       container.scrollTop = container.scrollHeight;
     };
 
-    window.submitPasswordChange = async function() {
-      const newPassword = document.getElementById("settings-new-password").value;
-      if (!newPassword || newPassword.length < 6) return alert("Password must be at least 6 characters.");
-      if (supabaseClient) {
-        const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
-        if (error) alert(error.message);
-        else alert("Password updated successfully!");
-      } else {
-        alert("Password updated locally.");
-      }
-      document.getElementById("settings-new-password").value = "";
-    };
-
-    window.handleSignOut = async function() {
-      if (supabaseClient) await supabaseClient.auth.signOut();
-      document.getElementById("auth-view").classList.remove("hidden");
-    };
-
-    window.togglePasswordVisibility = function(id) {
-      const el = document.getElementById(id);
-      el.type = el.type === "password" ? "text" : "password";
-    };
-
-    window.toggleAuthMode = function(mode) {
-      if (mode === 'signup') {
-        document.getElementById("signin-form").classList.add("hidden");
-        document.getElementById("signup-form").classList.remove("hidden");
-      } else {
-        document.getElementById("signup-form").classList.add("hidden");
-        document.getElementById("signin-form").classList.remove("hidden");
-      }
-    };
-
-    window.submitSignIn = async function() {
-      const email = document.getElementById("login-email").value.trim();
-      const password = document.getElementById("login-password").value;
-      if (supabaseClient) {
-        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-        if (error) return alert("Login failed: " + error.message);
-      }
-      document.getElementById("auth-view").classList.add("hidden");
-    };
-
-    window.submitSignUp = async function() {
-      const name = document.getElementById("signup-name").value.trim();
-      const email = document.getElementById("signup-email").value.trim();
-      const password = document.getElementById("signup-password").value;
-      if (supabaseClient) {
-        const { error } = await supabaseClient.auth.signUp({ email, password, options: { data: { full_name: name } } });
-        if (error) return alert("Signup failed: " + error.message);
-      }
-      alert("Sign up complete. Logging in...");
-      document.getElementById("auth-view").classList.add("hidden");
-    };
-
-    // Auto-init on load
+    // Safe Init
     window.addEventListener("DOMContentLoaded", () => {
       window.renderCatalog();
-      lucide.createIcons();
     });
   </script>
 </body>
