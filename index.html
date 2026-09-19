@@ -59,11 +59,11 @@
         </p>
       </form>
 
-      <!-- Sign Up Form (Hidden by default) -->
+      <!-- Sign Up Form -->
       <form id="signup-form" onsubmit="event.preventDefault(); submitSignUp();" class="space-y-4 hidden">
         <div>
           <label class="block text-xs font-semibold text-stone-600 uppercase tracking-wider mb-1">Full Name</label>
-          <input type="text" id="signup-name" required placeholder="Ly Thorng"
+          <input type="text" id="signup-name" required placeholder="Barista Name"
             class="w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm transition" />
         </div>
         <div>
@@ -122,10 +122,10 @@
         </nav>
       </div>
 
-      <!-- User Badge & Quick Sign Out -->
+      <!-- User Profile & Log Out -->
       <div class="bg-stone-50 border border-stone-200/80 rounded-2xl p-3 flex items-center justify-between">
         <div class="truncate mr-2">
-          <p id="user-display-name" class="text-xs font-bold text-stone-800 truncate">Staff User</p>
+          <p id="user-display-name" class="text-xs font-bold text-stone-800 truncate">Staff Member</p>
           <p id="user-profile-email" class="text-[11px] text-stone-400 truncate">user@cafe.com</p>
         </div>
         <button onclick="handleSignOut()" title="Log out" class="p-2 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition">
@@ -134,7 +134,7 @@
       </div>
     </aside>
 
-    <!-- Main Content Work Area -->
+    <!-- Main Content Area -->
     <main class="flex-1 flex flex-col overflow-hidden">
       
       <!-- Top Status Header -->
@@ -142,20 +142,19 @@
         <div id="page-header-title" class="font-bold text-stone-800 text-lg">Food & Drinks</div>
         <div class="flex items-center gap-3">
           <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-full border border-emerald-200">
-            <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Online
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Live Register
           </span>
           <span id="current-clock" class="text-xs text-stone-500 font-medium">--:--</span>
         </div>
       </header>
 
-      <!-- View Sections -->
+      <!-- Views Container -->
       <div class="flex-1 overflow-hidden flex">
         
         <!-- 1. FOOD & DRINKS VIEW -->
         <section id="view-catalog" class="flex-1 flex overflow-hidden">
-          <!-- Catalog List -->
           <div class="flex-1 flex flex-col p-6 overflow-hidden">
-            <!-- Category Pills (From Wireframe) -->
+            <!-- Categories -->
             <div class="flex items-center gap-2 overflow-x-auto pb-4 hide-scrollbar">
               <button onclick="filterCategory('All')" class="cat-pill px-4 py-2 rounded-full text-xs font-semibold bg-stone-900 text-white">All</button>
               <button onclick="filterCategory('Cold Drinks')" class="cat-pill px-4 py-2 rounded-full text-xs font-semibold bg-white border border-stone-200 text-stone-600 hover:bg-stone-50">Cold Drinks</button>
@@ -166,13 +165,11 @@
               <button onclick="filterCategory('Pasta')" class="cat-pill px-4 py-2 rounded-full text-xs font-semibold bg-white border border-stone-200 text-stone-600 hover:bg-stone-50">Pasta</button>
             </div>
 
-            <!-- Items Grid -->
-            <div id="items-grid" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto pr-1 flex-1 hide-scrollbar">
-              <!-- Rendered via JS -->
-            </div>
+            <!-- Grid Items -->
+            <div id="items-grid" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto pr-1 flex-1 hide-scrollbar"></div>
           </div>
 
-          <!-- Cart Sidebar -->
+          <!-- Active Cart Sidebar -->
           <aside class="w-84 md:w-96 bg-white border-l border-stone-200 flex flex-col justify-between p-6">
             <div>
               <div class="flex items-center justify-between pb-4 border-b border-stone-100">
@@ -182,13 +179,11 @@
                 <button onclick="clearCart()" class="text-xs text-stone-400 hover:text-red-600 transition">Clear</button>
               </div>
 
-              <!-- Cart List -->
               <div id="cart-list" class="divide-y divide-stone-100 max-h-[calc(100vh-360px)] overflow-y-auto mt-2">
                 <div class="py-8 text-center text-xs text-stone-400">Cart is empty</div>
               </div>
             </div>
 
-            <!-- Totals & Checkout -->
             <div class="pt-4 border-t border-stone-100 space-y-3">
               <div class="space-y-1.5 text-xs text-stone-500">
                 <div class="flex justify-between">
@@ -234,7 +229,7 @@
           </div>
           <div class="bg-white p-6 rounded-2xl border border-stone-200">
             <h4 class="font-bold text-stone-800 text-sm mb-4">Live Activity</h4>
-            <p class="text-xs text-stone-500">Register opened today by active barista session.</p>
+            <p class="text-xs text-stone-500">Terminal register active and synchronized with Supabase.</p>
           </div>
         </section>
 
@@ -247,7 +242,7 @@
                 <span class="font-bold text-stone-800">Kitchen Team:</span> Low on oat milk for Cold Drinks bar.
               </div>
               <div class="p-3 bg-stone-50 rounded-xl border border-stone-200/80">
-                <span class="font-bold text-stone-800">Manager:</span> Peak lunch shift expected at 12:30 PM.
+                <span class="font-bold text-stone-800">Manager:</span> Peak lunch shift begins at 12:30 PM.
               </div>
             </div>
           </div>
@@ -261,7 +256,7 @@
           </div>
         </section>
 
-        <!-- 5. SETTINGS VIEW (Matches Wireframe Subsections) -->
+        <!-- 5. SETTINGS VIEW -->
         <section id="view-settings" class="flex-1 p-8 overflow-y-auto hidden">
           <div class="max-w-2xl bg-white rounded-2xl border border-stone-200 p-6 space-y-6">
             <div>
@@ -269,7 +264,7 @@
               <p class="text-xs text-stone-400">Manage your credentials and preferences</p>
             </div>
 
-            <!-- Login & Password Section -->
+            <!-- Login & Password -->
             <div class="pt-4 border-t border-stone-100">
               <h4 class="text-xs font-bold text-stone-700 uppercase tracking-wider mb-3">Login & Password</h4>
               <form onsubmit="event.preventDefault(); submitPasswordChange();" class="space-y-3">
@@ -284,13 +279,13 @@
               </form>
             </div>
 
-            <!-- Personal Info -->
+            <!-- Personal Information -->
             <div class="pt-4 border-t border-stone-100">
               <h4 class="text-xs font-bold text-stone-700 uppercase tracking-wider mb-2">Personal Information</h4>
               <p class="text-xs text-stone-500">Connected account: <span id="settings-email-display" class="font-semibold text-stone-800">-</span></p>
             </div>
 
-            <!-- Session Termination -->
+            <!-- Sign Out -->
             <div class="pt-4 border-t border-stone-100">
               <h4 class="text-xs font-bold text-stone-700 uppercase tracking-wider mb-2">Log Out</h4>
               <button onclick="handleSignOut()" class="px-5 py-2.5 bg-red-50 text-red-600 hover:bg-red-100 font-semibold text-xs rounded-xl transition">
@@ -306,22 +301,17 @@
 
   <!-- ================= LOGIC & SUPABASE SCRIPT ================= -->
   <script>
-    // -------------------------------------------------------------
-    // 1. SUPABASE INITIALIZATION
-    // REPLACE THESE TWO STRINGS WITH YOUR SUPABASE SETTINGS -> API KEYS
-    // -------------------------------------------------------------
+    // Supabase project credentials
     const SUPABASE_URL = "https://pbsrwpysykxqwegcayjq.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBic3J3cHlzeWt4cXdlZ2NheWpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3NjcwNDYsImV4cCI6MjEwNTM0MzA0Nn0.e4gRaGMWzGG0eApOI_tcLvjBZLDtTlAVsq8DGBqhExY";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBicndweXN5a3hxd2VnY2F5anEiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc0MDIxNTczMiwiZXhwIjoyMDU1NzkxNzMyfQ.jMv2Fm7q3W7zX_kO1h1S9u9cTf6dZqZ5Pz0p3rB9xLw";
 
-// AFTER:
-let supabaseClient = null;
-if (SUPABASE_URL.startsWith("https://") && !SUPABASE_URL.includes("YOUR_PROJECT_REF")) {
-  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-}
+    // Safe client initialization avoiding global namespace collisions
+    let supabaseClient = null;
+    if (window.supabase && typeof window.supabase.createClient === 'function') {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
 
-    // -------------------------------------------------------------
-    // 2. AUTHENTICATION LOGIC (Supabase + Local Fallback)
-    // -------------------------------------------------------------
+    // ---------------- AUTHENTICATION ----------------
     function toggleAuthMode(mode) {
       const signInForm = document.getElementById("signin-form");
       const signUpForm = document.getElementById("signup-form");
@@ -345,20 +335,20 @@ if (SUPABASE_URL.startsWith("https://") && !SUPABASE_URL.includes("YOUR_PROJECT_
       const email = document.getElementById("login-email").value.trim();
       const password = document.getElementById("login-password").value;
 
-      if (!email || !password) return alert("Please fill in both email and password.");
+      if (!email || !password) {
+        alert("Please enter both email and password.");
+        return;
+      }
 
       if (supabaseClient) {
-  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) {
           alert("Login error: " + error.message);
         } else {
-          // Clear inputs on success
           document.getElementById("login-password").value = "";
         }
       } else {
-        // Local preview fallback if keys are not configured yet
-        localStorage.setItem("pos_offline_user", email);
-        updateUserSessionState({ email });
+        alert("Supabase client failed to load. Check network connection.");
       }
     }
 
@@ -367,34 +357,35 @@ if (SUPABASE_URL.startsWith("https://") && !SUPABASE_URL.includes("YOUR_PROJECT_
       const email = document.getElementById("signup-email").value.trim();
       const password = document.getElementById("signup-password").value;
 
-      if (password.length < 6) return alert("Password must be at least 6 characters.");
+      if (password.length < 6) {
+        alert("Password must be at least 6 characters.");
+        return;
+      }
 
       if (supabaseClient) {
-  const { data, error } = await supabaseClient.auth.signUp({
-    email,
-    password,
-    options: { data: { full_name: name } }
-  });
+        const { data, error } = await supabaseClient.auth.signUp({
+          email,
+          password,
+          options: { data: { full_name: name } }
+        });
         if (error) {
           alert("Sign up error: " + error.message);
         } else {
-          alert("Account registered successfully! Signing in...");
+          alert("Account registered successfully! You may now sign in.");
           toggleAuthMode('signin');
         }
-      } else {
-        localStorage.setItem("pos_offline_user", email);
-        updateUserSessionState({ email });
       }
     }
 
     async function submitPasswordChange() {
       const newPassword = document.getElementById("settings-new-password").value;
       if (!newPassword || newPassword.length < 6) {
-        return alert("Password must be at least 6 characters.");
+        alert("Password must be at least 6 characters.");
+        return;
       }
-  
-     if (supabaseClient) {
-  const { data, error } = await supabaseClient.auth.updateUser({ password: newPassword });
+
+      if (supabaseClient) {
+        const { data, error } = await supabaseClient.auth.updateUser({ password: newPassword });
         if (error) {
           alert("Password update failed: " + error.message);
         } else {
@@ -403,19 +394,13 @@ if (SUPABASE_URL.startsWith("https://") && !SUPABASE_URL.includes("YOUR_PROJECT_
           const loginPass = document.getElementById("login-password");
           if (loginPass) loginPass.value = "";
         }
-      } else {
-        alert("Offline mode: Password updated locally.");
-        document.getElementById("settings-new-password").value = "";
       }
     }
 
     async function handleSignOut() {
-      if (supabase) {
-        await supabase.auth.signOut();
-      }
       if (supabaseClient) {
-  await supabaseClient.auth.signOut();
-      localStorage.removeItem("pos_offline_user");
+        await supabaseClient.auth.signOut();
+      }
       updateUserSessionState(null);
     }
 
@@ -439,26 +424,17 @@ if (SUPABASE_URL.startsWith("https://") && !SUPABASE_URL.includes("YOUR_PROJECT_
       }
     }
 
-    // Initialize Supabase Auth State Listener
-      
-if (supabaseClient) {
-  supabaseClient.auth.onAuthStateChange((event, session) => {
-    if (session && session.user) {
-      updateUserSessionState(session.user);
-    } else {
-      updateUserSessionState(null);
-    }
-  });
-}
+    if (supabaseClient) {
+      supabaseClient.auth.onAuthStateChange((event, session) => {
+        if (session && session.user) {
+          updateUserSessionState(session.user);
+        } else {
+          updateUserSessionState(null);
+        }
       });
-    } else {
-      const offlineUser = localStorage.getItem("pos_offline_user");
-      if (offlineUser) updateUserSessionState({ email: offlineUser });
     }
 
-    // -------------------------------------------------------------
-    // 3. MENU DATA & CART ENGINE
-    // -------------------------------------------------------------
+    // ---------------- MENU & CART ----------------
     const MENU_ITEMS = [
       { id: 1, name: "Iced Caramel Macchiato", category: "Cold Drinks", price: 4.50, icon: "🥤" },
       { id: 2, name: "Cold Brew Reserve", category: "Cold Drinks", price: 4.00, icon: "🧊" },
@@ -565,15 +541,16 @@ if (supabaseClient) {
     }
 
     function checkoutCart() {
-      if (cart.length === 0) return alert("Cart is empty!");
+      if (cart.length === 0) {
+        alert("Cart is empty!");
+        return;
+      }
       const total = document.getElementById("total-val").textContent;
-      alert(`Order processed successfully for ${total}! Receipt sent to thermal print.`);
+      alert(`Order completed for ${total}! Ticket sent to kitchen.`);
       clearCart();
     }
 
-    // -------------------------------------------------------------
-    // 4. TAB NAVIGATION
-    // -------------------------------------------------------------
+    // ---------------- NAVIGATION ----------------
     function switchTab(tabId) {
       ['catalog', 'dashboard', 'messages', 'bills', 'settings'].forEach(t => {
         document.getElementById(`view-${t}`).classList.add('hidden');
@@ -601,7 +578,7 @@ if (supabaseClient) {
       document.getElementById("current-clock").textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }, 1000);
 
-    // Initial render
+    // Initial setup
     renderCatalog();
     lucide.createIcons();
   </script>
