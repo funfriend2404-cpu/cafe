@@ -3,227 +3,386 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Artisan Cafe POS</title>
+  <title>SmartPOS Terminal</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Supabase JS Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    @font-face {
+      font-family: 'Gilroy';
+      src: local('Gilroy-Bold'), local('Gilroy Bold'), url('https://cdn.jsdelivr.net/gh/radvil/Gilroy@master/Gilroy-Bold.woff2') format('woff2');
+      font-weight: 700;
+    }
+    @font-face {
+      font-family: 'Gilroy';
+      src: local('Gilroy-Medium'), local('Gilroy Medium'), url('https://cdn.jsdelivr.net/gh/radvil/Gilroy@master/Gilroy-Medium.woff2') format('woff2');
+      font-weight: 500;
+    }
+    @font-face {
+      font-family: 'Gilroy';
+      src: local('Gilroy-Regular'), local('Gilroy Regular'), url('https://cdn.jsdelivr.net/gh/radvil/Gilroy@master/Gilroy-Regular.woff2') format('woff2');
+      font-weight: 400;
+    }
+
     body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-family: 'Gilroy', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #0E0E10;
+      color: #000000;
     }
-    .hide-scrollbar::-webkit-scrollbar {
-      display: none;
+
+    :root {
+      --color-gold: #FFCA40;
+      --color-crimson: #C8161D;
+      --color-black: #000000;
+      --color-gray: #808080;
+      --color-bg: #F8F8F7;
     }
-    .hide-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
+
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Custom Switch matching attached screenshots */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+    }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #EFEFEF;
+      transition: .25s;
+      border-radius: 24px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .25s;
+      border-radius: 50%;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+    input:checked + .slider {
+      background-color: #FFCA40;
+    }
+    input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+
+    @media print {
+      body * { visibility: hidden; }
+      #receipt-modal-content, #receipt-modal-content * { visibility: visible; }
+      #receipt-modal-content { position: absolute; left: 0; top: 0; width: 100%; }
     }
   </style>
 </head>
-<body class="bg-stone-100 text-stone-800 antialiased h-screen flex overflow-hidden">
+<body class="bg-[#0E0E10] text-black antialiased h-screen flex items-center justify-center p-2 sm:p-5 select-none overflow-hidden">
 
-  <!-- ================= AUTH VIEW ================= -->
-  <div id="auth-view" class="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/60 backdrop-blur-md p-4">
-    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 border border-stone-100">
-      <div class="text-center mb-6">
-        <div class="w-14 h-14 bg-amber-600 rounded-2xl mx-auto flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-amber-600/30 mb-3">
-          ☕
+  <!-- ================= AUTH VIEW (EXACT ATTACHED SCREEN 4) ================= -->
+  <div id="auth-view" class="fixed inset-0 z-50 flex items-center justify-center bg-[#0E0E10] p-4 sm:p-8">
+    <div class="bg-white rounded-[40px] shadow-2xl w-full max-w-5xl h-[680px] flex overflow-hidden border border-white/20">
+      
+      <!-- Left Illustration Showcase -->
+      <div class="hidden md:flex w-1/2 bg-[#F8F8F7] flex-col justify-between p-10 relative">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 bg-[#C8161D] text-white rounded-xl flex items-center justify-center text-sm shadow-sm">
+            🛍️
+          </div>
+          <span class="font-extrabold text-black text-lg tracking-tight">Smart<span class="text-[#C8161D]">POS</span></span>
         </div>
-        <h2 id="auth-title" class="text-2xl font-bold text-stone-900">Sign in to Cafe POS</h2>
-        <p id="auth-subtitle" class="text-xs text-stone-500 mt-1">Enter your credentials to access the register</p>
+
+        <!-- Phone & Illustration Mockup -->
+        <div class="flex flex-col items-center justify-center my-auto relative">
+          <!-- Stylized Phone Container -->
+          <div class="w-64 bg-white rounded-[36px] shadow-2xl border-4 border-black p-4 relative overflow-hidden">
+            <div class="w-16 h-3 bg-black rounded-full mx-auto mb-3"></div>
+            <div class="bg-[#FFCA40] text-black font-extrabold text-[11px] py-2 px-3 rounded-xl flex justify-between items-center mb-3">
+              <span>PAYMENTS</span>
+              <span>⚡</span>
+            </div>
+            <!-- Payment Card Graphic -->
+            <div class="bg-stone-900 text-white p-3 rounded-2xl mb-3 shadow-md">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-[9px] text-[#FFCA40] font-bold">SMART CARD</span>
+                <span class="text-xs">💳</span>
+              </div>
+              <p class="text-[10px] font-mono tracking-widest text-stone-400">•••• 3456</p>
+            </div>
+            <div class="space-y-1.5 text-[10px] text-[#808080]">
+              <div class="h-2 bg-[#F8F8F7] rounded-full w-3/4"></div>
+              <div class="h-2 bg-[#F8F8F7] rounded-full w-1/2"></div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-stone-100 flex justify-between items-center">
+              <div>
+                <span class="text-[9px] text-[#808080]">TOTAL</span>
+                <p class="text-xs font-black text-black">$129.99</p>
+              </div>
+              <button class="px-2.5 py-1 bg-[#FFCA40] text-black text-[9px] font-extrabold rounded-lg">PAY NOW</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center">
+          <h3 class="text-lg font-bold text-black max-w-xs mx-auto leading-snug">
+            Manage sales, inventory and other transactions
+          </h3>
+          <div class="flex justify-center gap-1.5 mt-4">
+            <span class="w-2 h-2 rounded-full bg-stone-300"></span>
+            <span class="w-2 h-2 rounded-full bg-stone-300"></span>
+            <span class="w-6 h-2 rounded-full bg-[#FFCA40]"></span>
+          </div>
+        </div>
       </div>
 
-      <!-- Sign In Form -->
-      <form id="signin-form" onsubmit="event.preventDefault(); submitSignIn();" class="space-y-4">
-        <div>
-          <label class="block text-xs font-semibold text-stone-600 uppercase tracking-wider mb-1">Email Address</label>
-          <input type="email" id="login-email" required placeholder="barista@cafe.com" autocomplete="username"
-            class="w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm transition" />
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-stone-600 uppercase tracking-wider mb-1">Password</label>
-          <input type="password" id="login-password" required placeholder="Enter your password" autocomplete="current-password"
-            class="w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm transition" />
-        </div>
-        <button type="submit" id="btn-login"
-          class="w-full py-3.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shadow-lg shadow-amber-600/25 transition">
-          Sign In
-        </button>
-        <p class="text-center text-xs text-stone-500 pt-2">
-          Don't have an account? 
-          <a href="#" onclick="toggleAuthMode('signup')" class="text-amber-600 font-semibold hover:underline">Sign up</a>
-        </p>
-      </form>
+      <!-- Right Form Pane -->
+      <div class="w-full md:w-1/2 p-10 md:p-14 flex flex-col justify-between overflow-y-auto">
+        <div></div>
 
-      <!-- Sign Up Form -->
-      <form id="signup-form" onsubmit="event.preventDefault(); submitSignUp();" class="space-y-4 hidden">
-        <div>
-          <label class="block text-xs font-semibold text-stone-600 uppercase tracking-wider mb-1">Full Name</label>
-          <input type="text" id="signup-name" required placeholder="Staff Name"
-            class="w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm transition" />
+        <div class="max-w-sm w-full mx-auto">
+          <h2 id="auth-main-heading" class="text-3xl font-black text-black tracking-tight mb-1">Welcome Back!</h2>
+          <p id="auth-sub-heading" class="text-xs text-[#808080] font-medium mb-6">Please, sign in to continue</p>
+
+          <!-- Sign In Form -->
+          <form id="signin-form" onsubmit="event.preventDefault(); submitSignIn();" class="space-y-3">
+            <div>
+              <input type="text" id="login-email" required placeholder="Sales ID number or email" autocomplete="username"
+                class="w-full px-4 py-3.5 bg-[#F8F8F7] border border-[#808080]/15 rounded-2xl text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FFCA40] transition" />
+            </div>
+            <div class="relative">
+              <input type="password" id="login-password" required placeholder="Password" autocomplete="current-password"
+                class="w-full px-4 py-3.5 bg-[#F8F8F7] border border-[#808080]/15 rounded-2xl text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FFCA40] transition pr-10" />
+              <button type="button" onclick="togglePasswordVisibility('login-password')" class="absolute right-3.5 top-3.5 text-[#808080] hover:text-black">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+            <button type="submit" id="btn-login"
+              class="w-full py-4 bg-[#FFCA40] hover:bg-[#e6b537] active:scale-[0.99] text-black font-extrabold rounded-2xl shadow-sm transition text-xs tracking-wide mt-2">
+              Sign in
+            </button>
+
+            <div class="text-center my-3 text-[11px] text-[#808080] font-medium">or</div>
+
+            <!-- Social SSO -->
+            <div class="grid grid-cols-2 gap-2.5">
+              <button type="button" onclick="alert('Google SSO ready for terminal')" class="py-2.5 px-3 border border-[#808080]/20 rounded-xl text-[11px] font-bold text-black flex items-center justify-center gap-2 hover:bg-stone-50 transition">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/><path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12.3 0 15.2s.7 5.5 1.9 7.9l3.7-2.9z"/><path fill="#34A853" d="M12 23.5c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.3-6.4-5.2L1.9 16.5C3.7 20.2 7.5 23.5 12 23.5z"/></svg>
+                <span>Google</span>
+              </button>
+              <button type="button" onclick="alert('Facebook SSO ready for terminal')" class="py-2.5 px-3 border border-[#808080]/20 rounded-xl text-[11px] font-bold text-black flex items-center justify-center gap-2 hover:bg-stone-50 transition">
+                <svg class="w-3.5 h-3.5 fill-[#1877F2]" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                <span>Facebook</span>
+              </button>
+            </div>
+
+            <div class="text-center pt-3">
+              <a href="#" onclick="alert('Password reset link sent to admin.')" class="text-xs text-[#2F80ED] hover:underline font-semibold">Forgot password?</a>
+            </div>
+
+            <p class="text-center text-xs text-[#808080] pt-2">
+              Don't have an account? 
+              <a href="#" onclick="toggleAuthMode('signup')" class="text-black font-bold hover:underline">Go to Registration</a>
+            </p>
+          </form>
+
+          <!-- Sign Up Form (Hidden by Default) -->
+          <form id="signup-form" onsubmit="event.preventDefault(); submitSignUp();" class="space-y-3 hidden">
+            <div>
+              <input type="text" id="signup-name" required placeholder="Full Name"
+                class="w-full px-4 py-3.5 bg-[#F8F8F7] border border-[#808080]/15 rounded-2xl text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FFCA40] transition" />
+            </div>
+            <div>
+              <input type="email" id="signup-email" required placeholder="Staff Email Address" autocomplete="username"
+                class="w-full px-4 py-3.5 bg-[#F8F8F7] border border-[#808080]/15 rounded-2xl text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FFCA40] transition" />
+            </div>
+            <div>
+              <input type="password" id="signup-password" required placeholder="Password (min 6 characters)" autocomplete="new-password"
+                class="w-full px-4 py-3.5 bg-[#F8F8F7] border border-[#808080]/15 rounded-2xl text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FFCA40] transition" />
+            </div>
+            <button type="submit" id="btn-signup"
+              class="w-full py-4 bg-[#FFCA40] hover:bg-[#e6b537] text-black font-extrabold rounded-2xl shadow-sm transition text-xs tracking-wide">
+              Create Register Account
+            </button>
+            <p class="text-center text-xs text-[#808080] pt-2">
+              Already registered? 
+              <a href="#" onclick="toggleAuthMode('signin')" class="text-black font-bold hover:underline">Sign in</a>
+            </p>
+          </form>
         </div>
-        <div>
-          <label class="block text-xs font-semibold text-stone-600 uppercase tracking-wider mb-1">Email Address</label>
-          <input type="email" id="signup-email" required placeholder="barista@cafe.com" autocomplete="username"
-            class="w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm transition" />
+
+        <div class="text-center text-[10px] text-[#808080]">
+          © 2020 SmartPOS App
         </div>
-        <div>
-          <label class="block text-xs font-semibold text-stone-600 uppercase tracking-wider mb-1">New Password</label>
-          <input type="password" id="signup-password" required placeholder="At least 6 characters" autocomplete="new-password"
-            class="w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm transition" />
-        </div>
-        <button type="submit" id="btn-signup"
-          class="w-full py-3.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shadow-lg shadow-amber-600/25 transition">
-          Create Account
-        </button>
-        <p class="text-center text-xs text-stone-500 pt-2">
-          Already registered? 
-          <a href="#" onclick="toggleAuthMode('signin')" class="text-amber-600 font-semibold hover:underline">Sign in</a>
-        </p>
-      </form>
+      </div>
+
     </div>
   </div>
 
-  <!-- ================= MAIN APPLICATION ================= -->
-  <div id="app-container" class="hidden flex-1 flex w-full h-full">
+  <!-- ================= MAIN POS APP CONTAINER ================= -->
+  <div id="app-container" class="hidden w-full h-full max-w-[1500px] max-h-[920px] bg-white rounded-[40px] shadow-2xl flex overflow-hidden border border-stone-200/50">
     
-    <!-- Navigation Sidebar -->
-    <aside class="w-64 bg-white border-r border-stone-200 flex flex-col justify-between p-5 select-none">
+    <!-- LEFT SIDEBAR (EXACT SCREEN 1, 2, 3) -->
+    <aside class="w-64 bg-white border-r border-[#808080]/15 flex flex-col justify-between p-6 shrink-0 select-none">
       <div>
+        <!-- SmartPOS Header -->
         <div class="flex items-center gap-3 px-2 py-3 mb-6">
-          <div class="w-10 h-10 bg-amber-600 text-white rounded-xl flex items-center justify-center font-bold text-lg shadow-md shadow-amber-600/30">☕</div>
-          <div>
-            <h1 class="font-bold text-stone-900 text-sm leading-tight">Artisan POS</h1>
-            <p class="text-[11px] text-stone-400">Terminal v2.1</p>
+          <div class="w-8 h-8 bg-[#C8161D] text-white rounded-xl flex items-center justify-center text-sm shadow-sm">
+            🛍️
           </div>
+          <span class="font-extrabold text-black text-lg tracking-tight">Smart<span class="text-[#C8161D]">POS</span></span>
         </div>
 
-        <!-- Wireframe Main Tabs -->
-        <nav class="space-y-1.5">
-          <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition text-stone-600 hover:bg-stone-50">
+        <!-- Main Navigation -->
+        <nav class="space-y-1">
+          <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition text-[#808080] hover:bg-[#F8F8F7]">
             <i data-lucide="layout-grid" class="w-4 h-4"></i> Dashboard
           </button>
-          <button onclick="switchTab('catalog')" id="nav-catalog" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition bg-amber-600 text-white shadow-sm shadow-amber-600/20">
-            <i data-lucide="utensils" class="w-4 h-4"></i> Food & Drinks
+          <button onclick="switchTab('catalog')" id="nav-catalog" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition bg-[#FFCA40] text-black shadow-sm">
+            <i data-lucide="utensils" class="w-4 h-4 text-black"></i> Food & Drinks
           </button>
-          <button onclick="switchTab('messages')" id="nav-messages" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition text-stone-600 hover:bg-stone-50">
+          <button onclick="switchTab('messages')" id="nav-messages" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition text-[#808080] hover:bg-[#F8F8F7]">
             <i data-lucide="message-square" class="w-4 h-4"></i> Messages
           </button>
-          <button onclick="switchTab('bills')" id="nav-bills" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition text-stone-600 hover:bg-stone-50">
+          <button onclick="switchTab('bills')" id="nav-bills" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition text-[#808080] hover:bg-[#F8F8F7]">
             <i data-lucide="receipt" class="w-4 h-4"></i> Bills
           </button>
-          <button onclick="switchTab('settings')" id="nav-settings" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition text-stone-600 hover:bg-stone-50">
+          <button onclick="switchTab('settings')" id="nav-settings" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition text-[#808080] hover:bg-[#F8F8F7]">
             <i data-lucide="settings" class="w-4 h-4"></i> Settings
           </button>
         </nav>
+
+        <!-- Other Section from Screens -->
+        <div class="pt-6 mt-4 border-t border-[#808080]/15">
+          <span class="text-[10px] font-bold text-[#808080] uppercase tracking-wider px-4">Other</span>
+          <div class="mt-2 space-y-1">
+            <button onclick="switchTab('settings'); switchSettingsSection('notifications');" class="w-full flex items-center justify-between px-4 py-2.5 rounded-2xl font-bold text-xs text-[#808080] hover:bg-[#F8F8F7] transition">
+              <div class="flex items-center gap-3">
+                <i data-lucide="bell" class="w-4 h-4"></i> Notifications
+              </div>
+              <span class="w-5 h-5 bg-[#FFCA40] text-black text-[10px] font-extrabold rounded-full flex items-center justify-center">3</span>
+            </button>
+            <button onclick="alert('SmartPOS Live Support connected.')" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl font-bold text-xs text-[#808080] hover:bg-[#F8F8F7] transition">
+              <i data-lucide="life-buoy" class="w-4 h-4"></i> Support
+            </button>
+          </div>
+        </div>
       </div>
 
-      <!-- User Profile Badge & Sign Out -->
-      <div class="bg-stone-50 border border-stone-200/80 rounded-2xl p-3 flex items-center justify-between">
-        <div class="truncate mr-2">
-          <p id="user-display-name" class="text-xs font-bold text-stone-800 truncate">Staff Member</p>
-          <p id="user-profile-email" class="text-[11px] text-stone-400 truncate">user@cafe.com</p>
+      <!-- Staff Profile Card from Screens 1, 2, 3 -->
+      <div>
+        <div class="bg-[#F8F8F7] rounded-3xl p-3.5 flex flex-col items-center text-center border border-[#808080]/10">
+          <div class="relative mb-2">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&h=120&q=80" alt="Avatar" class="w-12 h-12 rounded-full object-cover ring-2 ring-white" />
+            <span class="w-3 h-3 bg-emerald-500 rounded-full border-2 border-white absolute bottom-0 right-0"></span>
+          </div>
+          <p id="user-display-name" class="font-bold text-black text-xs">Theresa Webb</p>
+          <p class="text-[10px] text-[#808080] mt-0.5">Waiter • 4h 56m</p>
+          <button onclick="switchTab('settings'); switchSettingsSection('profile');" class="w-full mt-3 py-2 bg-white hover:bg-stone-50 border border-[#808080]/15 rounded-xl text-[11px] font-bold text-black transition">
+            Open profile
+          </button>
         </div>
-        <button onclick="handleSignOut()" title="Log out" class="p-2 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition">
-          <i data-lucide="log-out" class="w-4 h-4"></i>
-        </button>
+
+        <p class="text-center text-[10px] text-[#808080] mt-4 font-medium">© 2020 SmartPOS App</p>
       </div>
     </aside>
 
-    <!-- Main Content Area -->
-    <main class="flex-1 flex flex-col overflow-hidden">
+    <!-- RIGHT MAIN WORKSPACE -->
+    <main class="flex-1 flex flex-col overflow-hidden bg-white">
       
-      <!-- Top Status Header -->
-      <header class="h-16 bg-white border-b border-stone-200 px-6 flex items-center justify-between">
-        <div id="page-header-title" class="font-bold text-stone-800 text-lg">Food & Drinks</div>
-        <div class="flex items-center gap-4">
-          <div class="flex items-center gap-2 bg-stone-50 border border-stone-200 rounded-xl px-3 py-1.5 text-xs text-stone-600">
-            <span>Table:</span>
-            <select id="table-select" class="bg-transparent font-bold outline-none cursor-pointer">
-              <option value="Takeaway">Takeaway</option>
-              <option value="Table 1">Table 1</option>
-              <option value="Table 2">Table 2</option>
-              <option value="Table 3">Table 3</option>
-              <option value="Table 4">Table 4</option>
-              <option value="Table 5">Table 5</option>
-              <option value="Bar 1">Bar 1</option>
-            </select>
+      <!-- Top Breadcrumb & Quick Actions Header -->
+      <header class="h-16 border-b border-[#808080]/15 px-8 flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-3" id="header-breadcrumb-area">
+          <button id="btn-back-breadcrumb" onclick="switchTab('catalog')" class="text-[#808080] hover:text-black">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+          </button>
+          <div class="text-xs font-semibold text-[#808080] flex items-center gap-1.5" id="breadcrumb-text">
+            <span>Food & Drinks</span>
           </div>
-          <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-full border border-emerald-200">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Live Register
-          </span>
-          <span id="current-clock" class="text-xs text-stone-500 font-medium font-mono">--:--</span>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <div class="relative cursor-pointer" onclick="switchTab('settings'); switchSettingsSection('notifications');">
+            <i data-lucide="bell" class="w-5 h-5 text-black"></i>
+            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#FFCA40] rounded-full ring-2 ring-white"></span>
+          </div>
+          <button class="p-1.5 text-[#808080] hover:text-black rounded-lg transition" onclick="switchTab('settings')">
+            <i data-lucide="more-horizontal" class="w-5 h-5 text-black"></i>
+          </button>
         </div>
       </header>
 
-      <!-- Views Container -->
+      <!-- Viewports -->
       <div class="flex-1 overflow-hidden flex">
         
         <!-- ================= 1. FOOD & DRINKS VIEW ================= -->
         <section id="view-catalog" class="flex-1 flex overflow-hidden">
           <div class="flex-1 flex flex-col p-6 overflow-hidden">
-            
-            <!-- Category Pills & Add Item Button -->
-            <div class="flex items-center justify-between pb-4">
+            <!-- Category Pills & Add Item -->
+            <div class="flex items-center justify-between pb-4 gap-4 shrink-0">
               <div class="flex items-center gap-2 overflow-x-auto hide-scrollbar">
-                <button onclick="filterCategory('All')" class="cat-pill px-4 py-2 rounded-full text-xs font-semibold bg-stone-900 text-white shadow-sm">All</button>
-                <button onclick="filterCategory('Cold Drinks')" class="cat-pill px-4 py-2 rounded-full text-xs font-semibold bg-white border border-stone-200 text-stone-600 hover:bg-stone-50">Cold Drinks</button>
-                <button onclick="filterCategory('Burgers')" class="cat-pill px-4 py-2 rounded-full text-xs font-semibold bg-white border border-stone-200 text-stone-600 hover:bg-stone-50">Burgers</button>
-                <button onclick="filterCategory('Pizza')" class="cat-pill px-4 py-2 rounded-full text-xs font-semibold bg-white border border-stone-200 text-stone-600 hover:bg-stone-50">Pizza</button>
-                <button onclick="filterCategory('Wok')" class="cat-pill px-4 py-2 rounded-full text-xs font-semibold bg-white border border-stone-200 text-stone-600 hover:bg-stone-50">Wok</button>
-                <button onclick="filterCategory('Desserts')" class="cat-pill px-4 py-2 rounded-full text-xs font-semibold bg-white border border-stone-200 text-stone-600 hover:bg-stone-50">Desserts</button>
-                <button onclick="filterCategory('Pasta')" class="cat-pill px-4 py-2 rounded-full text-xs font-semibold bg-white border border-stone-200 text-stone-600 hover:bg-stone-50">Pasta</button>
+                <button onclick="filterCategory('All')" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-black text-white shadow-sm transition">All</button>
+                <button onclick="filterCategory('Cold Drinks')" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-white border border-[#808080]/20 text-[#808080] hover:text-black transition">Cold Drinks</button>
+                <button onclick="filterCategory('Burgers')" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-white border border-[#808080]/20 text-[#808080] hover:text-black transition">Burgers</button>
+                <button onclick="filterCategory('Pizza')" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-white border border-[#808080]/20 text-[#808080] hover:text-black transition">Pizza</button>
+                <button onclick="filterCategory('Wok')" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-white border border-[#808080]/20 text-[#808080] hover:text-black transition">Wok</button>
+                <button onclick="filterCategory('Desserts')" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-white border border-[#808080]/20 text-[#808080] hover:text-black transition">Desserts</button>
+                <button onclick="filterCategory('Pasta')" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-white border border-[#808080]/20 text-[#808080] hover:text-black transition">Pasta</button>
               </div>
 
-              <!-- Item Manager Button -->
-              <button onclick="openItemModal()" class="px-4 py-2 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
-                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add / Edit Item
+              <button onclick="openMenuManagementModal()" class="px-4 py-2 bg-[#FFCA40] hover:bg-[#e6b537] text-black rounded-xl text-xs font-bold flex items-center gap-1.5 transition shrink-0 shadow-sm">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i> Manage Menu
               </button>
             </div>
 
-            <!-- Grid Items -->
-            <div id="items-grid" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto pr-1 flex-1 hide-scrollbar"></div>
+            <!-- Product Grid -->
+            <div id="items-grid" class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto pr-1 flex-1 hide-scrollbar"></div>
           </div>
 
           <!-- Active Cart Sidebar -->
-          <aside class="w-80 md:w-96 bg-white border-l border-stone-200 flex flex-col justify-between p-6">
+          <aside class="w-80 lg:w-96 bg-white border-l border-[#808080]/15 flex flex-col justify-between p-6 shrink-0">
             <div>
-              <div class="flex items-center justify-between pb-4 border-b border-stone-100">
-                <h3 class="font-bold text-stone-900 text-base flex items-center gap-2">
-                  <i data-lucide="shopping-cart" class="w-4 h-4 text-amber-600"></i> Active Order
-                </h3>
-                <button onclick="clearCart()" class="text-xs text-stone-400 hover:text-red-600 transition font-medium">Clear Cart</button>
+              <div class="flex items-center justify-between pb-4 border-b border-[#808080]/15">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="shopping-bag" class="w-4 h-4 text-[#C8161D]"></i>
+                  <h3 class="font-bold text-black text-sm">Active Order</h3>
+                </div>
+                <button onclick="clearCart()" class="text-xs text-[#808080] hover:text-[#C8161D] transition font-bold">Clear All</button>
               </div>
 
-              <!-- Item Entries -->
-              <div id="cart-list" class="divide-y divide-stone-100 max-h-[calc(100vh-370px)] overflow-y-auto mt-2 hide-scrollbar">
-                <div class="py-12 text-center text-xs text-stone-400">Cart is empty</div>
+              <div id="cart-list" class="divide-y divide-[#808080]/10 max-h-[calc(100vh-390px)] overflow-y-auto mt-2 hide-scrollbar">
+                <div class="py-14 text-center text-xs text-[#808080] font-medium">Cart is empty.<br/>Select an item to customize and add.</div>
               </div>
             </div>
 
-            <!-- Checkout Details -->
-            <div class="pt-4 border-t border-stone-100 space-y-3">
-              <div class="space-y-1.5 text-xs text-stone-500">
+            <div class="pt-4 border-t border-[#808080]/15 space-y-3">
+              <div class="space-y-1.5 text-xs text-[#808080] font-medium">
                 <div class="flex justify-between">
                   <span>Subtotal</span>
-                  <span id="subtotal-val" class="font-semibold text-stone-800">$0.00</span>
+                  <span id="subtotal-val" class="font-bold text-black">$0.00</span>
                 </div>
                 <div class="flex justify-between">
                   <span id="tax-label">Tax (10%)</span>
-                  <span id="tax-val" class="font-semibold text-stone-800">$0.00</span>
+                  <span id="tax-val" class="font-bold text-black">$0.00</span>
                 </div>
-                <div class="flex justify-between text-base font-bold text-stone-900 pt-1 border-t border-stone-100">
-                  <span>Total</span>
-                  <span id="total-val" class="text-amber-600">$0.00</span>
+                <div class="flex justify-between text-base font-extrabold text-black pt-1 border-t border-[#808080]/15">
+                  <span>Total Due</span>
+                  <span id="total-val" class="text-[#C8161D] font-mono">$0.00</span>
                 </div>
               </div>
 
-              <button onclick="openCheckoutModal()" class="w-full py-3.5 bg-amber-600 hover:bg-amber-700 active:scale-[0.98] text-white font-bold rounded-xl shadow-lg shadow-amber-600/25 transition">
-                Pay & Generate Bill
+              <button onclick="initiateCheckout()" class="w-full py-4 bg-[#FFCA40] hover:bg-[#e6b537] active:scale-[0.98] text-black font-extrabold rounded-2xl shadow-sm transition tracking-wide text-xs uppercase">
+                Proceed to Payment
               </button>
             </div>
           </aside>
@@ -233,302 +392,666 @@
         <section id="view-dashboard" class="flex-1 p-8 overflow-y-auto hidden">
           <div class="max-w-6xl mx-auto space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
-              <div class="bg-white p-5 rounded-2xl border border-stone-200">
-                <span class="text-xs text-stone-400 font-semibold uppercase tracking-wider">Today's Revenue</span>
-                <p id="dash-revenue" class="text-2xl font-bold text-stone-900 mt-2">$1,482.00</p>
-                <span class="text-[11px] text-emerald-600 font-semibold">↑ +14% vs yesterday</span>
+              <div class="bg-[#F8F8F7] p-5 rounded-[24px] border border-[#808080]/15">
+                <span class="text-[11px] text-[#808080] font-bold uppercase tracking-wider">Today's Sales</span>
+                <p id="dash-revenue" class="text-2xl font-black text-black mt-2 font-mono">$1,482.00</p>
+                <span class="text-[11px] text-[#C8161D] font-bold">↑ +14.2% vs yesterday</span>
               </div>
-              <div class="bg-white p-5 rounded-2xl border border-stone-200">
-                <span class="text-xs text-stone-400 font-semibold uppercase tracking-wider">Total Bills Finalized</span>
-                <p id="dash-orders" class="text-2xl font-bold text-stone-900 mt-2">108</p>
-                <span class="text-[11px] text-stone-400 font-medium">Across all tables</span>
+              <div class="bg-[#F8F8F7] p-5 rounded-[24px] border border-[#808080]/15">
+                <span class="text-[11px] text-[#808080] font-bold uppercase tracking-wider">Completed Bills</span>
+                <p class="text-2xl font-black text-black mt-2 font-mono">108</p>
+                <span class="text-[11px] text-[#808080]">Total settled tickets</span>
               </div>
-              <div class="bg-white p-5 rounded-2xl border border-stone-200">
-                <span class="text-xs text-stone-400 font-semibold uppercase tracking-wider">Active Tables</span>
-                <p class="text-2xl font-bold text-stone-900 mt-2">6 / 12</p>
-                <span class="text-[11px] text-amber-600 font-medium">50% dine-in capacity</span>
+              <div class="bg-[#F8F8F7] p-5 rounded-[24px] border border-[#808080]/15">
+                <span class="text-[11px] text-[#808080] font-bold uppercase tracking-wider">Occupied Tables</span>
+                <p class="text-2xl font-black text-black mt-2 font-mono">5 / 8</p>
+                <span class="text-[11px] text-[#FFCA40] font-black">62.5% Dine-In Load</span>
               </div>
-              <div class="bg-white p-5 rounded-2xl border border-stone-200">
-                <span class="text-xs text-stone-400 font-semibold uppercase tracking-wider">Average Ticket</span>
-                <p class="text-2xl font-bold text-stone-900 mt-2">$13.72</p>
-                <span class="text-[11px] text-stone-400 font-medium">Per customer order</span>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div class="bg-white p-6 rounded-2xl border border-stone-200">
-                <h4 class="font-bold text-stone-800 text-sm mb-4">Sales by Category</h4>
-                <div class="space-y-3 text-xs">
-                  <div>
-                    <div class="flex justify-between mb-1 font-semibold text-stone-700"><span>Cold Drinks</span><span>38%</span></div>
-                    <div class="w-full bg-stone-100 rounded-full h-2"><div class="bg-amber-600 h-2 rounded-full" style="width: 38%"></div></div>
-                  </div>
-                  <div>
-                    <div class="flex justify-between mb-1 font-semibold text-stone-700"><span>Burgers & Pizza</span><span>29%</span></div>
-                    <div class="w-full bg-stone-100 rounded-full h-2"><div class="bg-amber-500 h-2 rounded-full" style="width: 29%"></div></div>
-                  </div>
-                  <div>
-                    <div class="flex justify-between mb-1 font-semibold text-stone-700"><span>Pasta & Wok</span><span>21%</span></div>
-                    <div class="w-full bg-stone-100 rounded-full h-2"><div class="bg-amber-400 h-2 rounded-full" style="width: 21%"></div></div>
-                  </div>
-                  <div>
-                    <div class="flex justify-between mb-1 font-semibold text-stone-700"><span>Desserts</span><span>12%</span></div>
-                    <div class="w-full bg-stone-100 rounded-full h-2"><div class="bg-stone-400 h-2 rounded-full" style="width: 12%"></div></div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="bg-white p-6 rounded-2xl border border-stone-200 flex flex-col justify-between">
-                <div>
-                  <h4 class="font-bold text-stone-800 text-sm mb-2">Terminal Shift Status</h4>
-                  <p class="text-xs text-stone-500">Live cashier station active. Supabase connection synced.</p>
-                </div>
-                <div class="p-4 bg-amber-50 rounded-xl border border-amber-200/60 flex items-center justify-between">
-                  <div>
-                    <p class="text-xs font-bold text-amber-900">Shift Started</p>
-                    <p class="text-[11px] text-amber-700">08:00 AM — Active Staff Register</p>
-                  </div>
-                  <button onclick="alert('Shift report generated!')" class="px-3 py-1.5 bg-amber-600 text-white rounded-lg text-xs font-semibold hover:bg-amber-700">Export Report</button>
-                </div>
+              <div class="bg-[#F8F8F7] p-5 rounded-[24px] border border-[#808080]/15">
+                <span class="text-[11px] text-[#808080] font-bold uppercase tracking-wider">Avg Order Value</span>
+                <p class="text-2xl font-black text-black mt-2 font-mono">$13.72</p>
+                <span class="text-[11px] text-[#808080]">Average ticket</span>
               </div>
             </div>
           </div>
         </section>
 
-        <!-- ================= 3. MESSAGES VIEW ================= -->
-        <section id="view-messages" class="flex-1 p-8 overflow-y-auto hidden">
-          <div class="max-w-2xl mx-auto bg-white rounded-2xl border border-stone-200 p-6 flex flex-col h-[600px]">
-            <div class="pb-4 border-b border-stone-100 flex items-center justify-between">
-              <div>
-                <h4 class="font-bold text-stone-900 text-sm">Staff & Kitchen Channel</h4>
-                <p class="text-[11px] text-stone-400">Live team shift communication</p>
+        <!-- ================= 3. MESSAGES VIEW (EXACT ATTACHED SCREEN 3) ================= -->
+        <section id="view-messages" class="flex-1 flex overflow-hidden hidden">
+          <!-- Chat Channel List Pane -->
+          <div class="w-80 border-r border-[#808080]/15 p-6 flex flex-col justify-between overflow-y-auto shrink-0 bg-white">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <h2 class="text-2xl font-black text-black tracking-tight">Messages</h2>
+                <button class="w-8 h-8 rounded-full bg-[#F8F8F7] flex items-center justify-center text-[#808080] hover:text-black">
+                  <i data-lucide="search" class="w-4 h-4"></i>
+                </button>
               </div>
-              <span class="text-xs px-2.5 py-1 bg-emerald-50 text-emerald-700 font-semibold rounded-lg">Active Room</span>
+
+              <!-- TEAMS Section -->
+              <div class="space-y-2 mb-6">
+                <span class="text-[11px] font-bold text-[#808080] uppercase tracking-wider">TEAMS</span>
+                
+                <!-- Waiter's Team (Active) -->
+                <div class="p-3 bg-[#F8F8F7] rounded-2xl cursor-pointer flex items-center gap-3 border border-[#808080]/10">
+                  <div class="relative">
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=80&h=80&q=80" class="w-10 h-10 rounded-full object-cover" />
+                    <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white absolute bottom-0 right-0"></span>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex justify-between items-baseline mb-0.5">
+                      <p class="font-bold text-black text-xs truncate">Waiter's Team</p>
+                      <span class="text-[10px] text-[#808080]">Just Now</span>
+                    </div>
+                    <p class="text-[11px] text-[#808080] truncate">Nolan Parker: I have already...</p>
+                  </div>
+                  <span class="w-4 h-4 bg-[#C8161D] text-white text-[9px] font-extrabold rounded-full flex items-center justify-center">7</span>
+                </div>
+
+                <!-- Manager's Team -->
+                <div class="p-3 hover:bg-[#F8F8F7] rounded-2xl cursor-pointer flex items-center gap-3 transition">
+                  <div class="relative">
+                    <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=80&h=80&q=80" class="w-10 h-10 rounded-full object-cover" />
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex justify-between items-baseline mb-0.5">
+                      <p class="font-bold text-black text-xs truncate">Manager's Team</p>
+                      <span class="text-[10px] text-[#808080]">24 min ago</span>
+                    </div>
+                    <p class="text-[11px] text-[#808080] truncate">Helen Sanders: Thanks for the...</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- PERSONAL Section -->
+              <div class="space-y-2">
+                <span class="text-[11px] font-bold text-[#808080] uppercase tracking-wider">PERSONAL</span>
+                
+                <div class="p-3 hover:bg-[#F8F8F7] rounded-2xl cursor-pointer flex items-center gap-3 transition">
+                  <img src="https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=80&h=80&q=80" class="w-10 h-10 rounded-full object-cover" />
+                  <div class="flex-1 min-w-0">
+                    <div class="flex justify-between items-baseline mb-0.5">
+                      <p class="font-bold text-black text-xs truncate">Kolin Holland</p>
+                      <span class="text-[10px] text-[#808080]">5 min ago</span>
+                    </div>
+                    <p class="text-[11px] text-[#808080] truncate">Please let me know when you...</p>
+                  </div>
+                  <span class="w-4 h-4 bg-[#C8161D] text-white text-[9px] font-extrabold rounded-full flex items-center justify-center">1</span>
+                </div>
+
+                <div class="p-3 hover:bg-[#F8F8F7] rounded-2xl cursor-pointer flex items-center gap-3 transition">
+                  <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=80&h=80&q=80" class="w-10 h-10 rounded-full object-cover" />
+                  <div class="flex-1 min-w-0">
+                    <div class="flex justify-between items-baseline mb-0.5">
+                      <p class="font-bold text-black text-xs truncate">Sarah Clarkson</p>
+                      <span class="text-[10px] text-[#808080]">Yesterday</span>
+                    </div>
+                    <p class="text-[11px] text-[#808080] truncate">Hey! How do you feel today?</p>
+                  </div>
+                </div>
+
+                <div class="p-3 hover:bg-[#F8F8F7] rounded-2xl cursor-pointer flex items-center gap-3 transition">
+                  <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=80&h=80&q=80" class="w-10 h-10 rounded-full object-cover" />
+                  <div class="flex-1 min-w-0">
+                    <div class="flex justify-between items-baseline mb-0.5">
+                      <p class="font-bold text-black text-xs truncate">Bella Posen</p>
+                      <span class="text-[10px] text-[#808080]">2 days ago</span>
+                    </div>
+                    <p class="text-[11px] text-[#808080] truncate">Yes Sure!</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Active Conversation Main Area -->
+          <div class="flex-1 flex flex-col justify-between bg-white overflow-hidden">
+            <!-- Channel Header -->
+            <div class="px-8 py-4 border-b border-[#808080]/15 flex items-center justify-between shrink-0">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-[#FFCA40] text-black font-extrabold rounded-2xl flex items-center justify-center text-xs">
+                  WT
+                </div>
+                <div>
+                  <h3 class="font-extrabold text-black text-sm">Waiter's Team</h3>
+                  <p class="text-[11px] text-[#808080]">8 members, 6 online</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2 text-[#808080]">
+                <button class="w-8 h-8 rounded-full hover:bg-stone-100 flex items-center justify-center"><i data-lucide="phone" class="w-4 h-4"></i></button>
+                <button class="w-8 h-8 rounded-full hover:bg-stone-100 flex items-center justify-center"><i data-lucide="video" class="w-4 h-4"></i></button>
+                <button class="w-8 h-8 rounded-full hover:bg-stone-100 flex items-center justify-center"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button>
+              </div>
             </div>
 
-            <!-- Messages Stream -->
-            <div id="messages-list" class="flex-1 overflow-y-auto py-4 space-y-3 text-xs">
-              <div class="p-3 bg-stone-50 rounded-xl border border-stone-200/70">
-                <div class="flex justify-between font-bold text-stone-800 mb-1">
-                  <span>Head Barista</span>
-                  <span class="text-[10px] font-normal text-stone-400">10:05 AM</span>
+            <!-- Chat Stream matching Screen 3 bubbles -->
+            <div id="chat-messages-container" class="flex-1 overflow-y-auto p-8 space-y-4 text-xs hide-scrollbar">
+              <div class="text-center my-2 text-[10px] text-[#808080] uppercase tracking-wider font-bold">Today</div>
+
+              <!-- Incoming Message -->
+              <div class="flex items-start gap-3 max-w-lg">
+                <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=60&h=60&q=80" class="w-7 h-7 rounded-full object-cover mt-1" />
+                <div>
+                  <div class="bg-[#F8F8F7] text-black p-4 rounded-3xl rounded-tl-none font-medium">
+                    Hi Guys! We urgently need a person for the fifth table. Who can take the order?
+                  </div>
+                  <span class="text-[10px] text-[#808080] mt-1 block">9:45</span>
                 </div>
-                <p class="text-stone-600">Cold Brew Reserve running low, 4 bottles remaining in cooling drawer.</p>
               </div>
-              <div class="p-3 bg-stone-50 rounded-xl border border-stone-200/70">
-                <div class="flex justify-between font-bold text-stone-800 mb-1">
-                  <span>Kitchen / Wok Station</span>
-                  <span class="text-[10px] font-normal text-stone-400">09:42 AM</span>
+
+              <!-- Outgoing Message (Yellow Bubble) -->
+              <div class="flex flex-col items-end max-w-lg ml-auto">
+                <div class="bg-[#FFCA40]/40 text-black p-4 rounded-3xl rounded-tr-none font-medium">
+                  I can't take the order now, I have a lot of work 🥺
                 </div>
-                <p class="text-stone-600">Truffle Carbonara ingredients fresh stock prepped for lunch rush.</p>
+                <div class="flex items-center gap-1 mt-1 text-[10px] text-[#808080]">
+                  <span>9:56</span>
+                  <i data-lucide="check-check" class="w-3.5 h-3.5 text-emerald-600"></i>
+                </div>
+              </div>
+
+              <!-- Incoming Message -->
+              <div class="flex items-start gap-3 max-w-lg">
+                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=60&h=60&q=80" class="w-7 h-7 rounded-full object-cover mt-1" />
+                <div>
+                  <div class="bg-[#F8F8F7] text-black p-4 rounded-3xl rounded-tl-none font-medium">
+                    What is the order number?
+                  </div>
+                  <span class="text-[10px] text-[#808080] mt-1 block">10:00</span>
+                </div>
+              </div>
+
+              <!-- Outgoing Message -->
+              <div class="flex flex-col items-end max-w-lg ml-auto">
+                <div class="bg-[#F8F8F7] text-black p-4 rounded-3xl rounded-tr-none font-medium">
+                  I'll take him 😎🤘
+                </div>
+                <span class="text-[10px] text-[#808080] mt-1 block">10:00</span>
+              </div>
+
+              <!-- Incoming Message -->
+              <div class="flex items-start gap-3 max-w-lg">
+                <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=60&h=60&q=80" class="w-7 h-7 rounded-full object-cover mt-1" />
+                <div>
+                  <div class="bg-[#F8F8F7] text-black p-4 rounded-3xl rounded-tl-none font-medium">
+                    Ok, thanks for the help! 😁 Order number is GK6780. When you will finish it, please write here. By the way, don't forget to offer a promotion!
+                  </div>
+                  <span class="text-[10px] text-[#808080] mt-1 block">10:02</span>
+                </div>
               </div>
             </div>
 
-            <!-- Send Message Input -->
-            <form onsubmit="event.preventDefault(); sendStaffMessage();" class="pt-3 border-t border-stone-100 flex gap-2">
-              <input type="text" id="message-input" placeholder="Type a shift message..." required
-                class="flex-1 px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-amber-500" />
-              <button type="submit" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl transition">
-                Send
+            <!-- Input Toolbar from Screen 3 -->
+            <form onsubmit="event.preventDefault(); sendLiveChatMessage();" class="p-6 border-t border-[#808080]/15 flex items-center gap-3 shrink-0">
+              <button type="button" class="text-[#808080] hover:text-black"><i data-lucide="paperclip" class="w-5 h-5"></i></button>
+              <input type="text" id="live-chat-input" placeholder="Write a message..." required
+                class="flex-1 px-5 py-3.5 bg-[#F8F8F7] border border-[#808080]/15 rounded-2xl text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FFCA40] transition" />
+              <button type="button" class="text-[#808080] hover:text-black"><i data-lucide="smile" class="w-5 h-5"></i></button>
+              <button type="button" class="text-[#808080] hover:text-black"><i data-lucide="mic" class="w-5 h-5"></i></button>
+              <button type="submit" class="w-11 h-11 bg-[#FFCA40] hover:bg-[#e6b537] text-black rounded-2xl flex items-center justify-center shadow-sm transition">
+                <i data-lucide="send" class="w-4 h-4"></i>
               </button>
             </form>
           </div>
         </section>
 
-        <!-- ================= 4. BILLS VIEW ================= -->
-        <section id="view-bills" class="flex-1 p-8 overflow-y-auto hidden">
-          <div class="max-w-4xl mx-auto bg-white rounded-2xl border border-stone-200 p-6">
-            <div class="flex items-center justify-between mb-4">
-              <div>
-                <h4 class="font-bold text-stone-900 text-base">Completed Bills & Receipts</h4>
-                <p class="text-xs text-stone-400">Review, search, or reprint finalized invoices</p>
+        <!-- ================= 4. BILLS VIEW (EXACT ATTACHED SCREEN 2) ================= -->
+        <section id="view-bills" class="flex-1 flex overflow-hidden hidden">
+          <!-- Left Column: Orders Explorer -->
+          <div class="w-80 border-r border-[#808080]/15 p-6 flex flex-col justify-between overflow-y-auto shrink-0 bg-white">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <h2 class="text-2xl font-black text-black tracking-tight">Bills</h2>
+                <button onclick="seedDemoBill()" class="w-8 h-8 rounded-full bg-[#F8F8F7] flex items-center justify-center font-bold text-black hover:bg-stone-200 transition">+</button>
               </div>
-              <button onclick="seedDemoBill()" class="text-xs px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 font-semibold rounded-lg transition">
-                + Add Sample Bill
-              </button>
+
+              <div class="flex items-center justify-between text-xs text-[#808080] mb-4">
+                <div class="flex items-center gap-1 cursor-pointer font-bold text-black">
+                  <span>All orders</span>
+                  <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+                </div>
+                <div class="flex items-center gap-1 cursor-pointer">
+                  <span>May 11, 2021</span>
+                  <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+                </div>
+              </div>
+
+              <!-- Orders List matching Screen 2 -->
+              <div class="space-y-2.5">
+                <!-- Order #35 (Active & Selected) -->
+                <div onclick="selectOrderInspection(35)" id="billcard-35" class="p-3.5 bg-[#F8F8F7] rounded-2xl cursor-pointer border-2 border-[#FFCA40] transition">
+                  <div class="flex justify-between items-center mb-1">
+                    <div class="flex items-center gap-2">
+                      <span class="font-extrabold text-black text-xs">Order #35</span>
+                      <span class="w-1.5 h-1.5 rounded-full bg-[#FFCA40]"></span>
+                      <span class="text-[10px] text-[#808080] font-bold">Active</span>
+                    </div>
+                    <span class="font-black text-black text-xs font-mono">$42</span>
+                  </div>
+                  <div class="flex justify-between text-[11px] text-[#808080]">
+                    <span>Table 2B • 2 guests</span>
+                    <span>14:30</span>
+                  </div>
+                </div>
+
+                <!-- Order #36 -->
+                <div onclick="selectOrderInspection(36)" id="billcard-36" class="p-3.5 hover:bg-[#F8F8F7] rounded-2xl cursor-pointer border border-[#808080]/15 transition">
+                  <div class="flex justify-between items-center mb-1">
+                    <div class="flex items-center gap-2">
+                      <span class="font-extrabold text-black text-xs">Order #36</span>
+                      <span class="w-1.5 h-1.5 rounded-full bg-[#FFCA40]"></span>
+                      <span class="text-[10px] text-[#808080] font-bold">Active</span>
+                    </div>
+                    <span class="font-black text-black text-xs font-mono">$56</span>
+                  </div>
+                  <div class="flex justify-between text-[11px] text-[#808080]">
+                    <span>Table 1B • 3 guests</span>
+                    <span>14:25</span>
+                  </div>
+                </div>
+
+                <!-- Order #37 (Done) -->
+                <div onclick="selectOrderInspection(37)" id="billcard-37" class="p-3.5 hover:bg-[#F8F8F7] rounded-2xl cursor-pointer border border-[#808080]/15 transition">
+                  <div class="flex justify-between items-center mb-1">
+                    <div class="flex items-center gap-2">
+                      <span class="font-extrabold text-black text-xs">Order #37</span>
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                      <span class="text-[10px] text-emerald-600 font-bold">Done</span>
+                    </div>
+                    <span class="font-black text-black text-xs font-mono">$15</span>
+                  </div>
+                  <div class="flex justify-between text-[11px] text-[#808080]">
+                    <span>Table 4C • 1 guest</span>
+                    <span>14:05</span>
+                  </div>
+                </div>
+
+                <!-- Order #38 -->
+                <div onclick="selectOrderInspection(38)" id="billcard-38" class="p-3.5 hover:bg-[#F8F8F7] rounded-2xl cursor-pointer border border-[#808080]/15 transition">
+                  <div class="flex justify-between items-center mb-1">
+                    <div class="flex items-center gap-2">
+                      <span class="font-extrabold text-black text-xs">Order #38</span>
+                      <span class="w-1.5 h-1.5 rounded-full bg-[#FFCA40]"></span>
+                      <span class="text-[10px] text-[#808080] font-bold">Active</span>
+                    </div>
+                    <span class="font-black text-black text-xs font-mono">$23</span>
+                  </div>
+                  <div class="flex justify-between text-[11px] text-[#808080]">
+                    <span>Table 3B • 2 guests</span>
+                    <span>14:02</span>
+                  </div>
+                </div>
+
+                <!-- Order #39 (Done) -->
+                <div onclick="selectOrderInspection(39)" id="billcard-39" class="p-3.5 hover:bg-[#F8F8F7] rounded-2xl cursor-pointer border border-[#808080]/15 transition">
+                  <div class="flex justify-between items-center mb-1">
+                    <div class="flex items-center gap-2">
+                      <span class="font-extrabold text-black text-xs">Order #39</span>
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                      <span class="text-[10px] text-emerald-600 font-bold">Done</span>
+                    </div>
+                    <span class="font-black text-black text-xs font-mono">$10</span>
+                  </div>
+                  <div class="flex justify-between text-[11px] text-[#808080]">
+                    <span>Table 1C • 1 guest</span>
+                    <span>13:55</span>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div class="overflow-x-auto">
-              <table class="w-full text-left text-xs">
-                <thead>
-                  <tr class="border-b border-stone-200 text-stone-400 font-bold uppercase tracking-wider">
-                    <th class="py-3 px-3">Bill ID</th>
-                    <th class="py-3 px-3">Table / Type</th>
-                    <th class="py-3 px-3">Time</th>
-                    <th class="py-3 px-3">Items</th>
-                    <th class="py-3 px-3">Total</th>
-                    <th class="py-3 px-3">Action</th>
-                  </tr>
-                </thead>
-                <tbody id="bills-tbody" class="divide-y divide-stone-100 text-stone-700">
-                  <tr>
-                    <td class="py-3 px-3 font-mono font-bold text-amber-600">#POS-1001</td>
-                    <td class="py-3 px-3">Table 2</td>
-                    <td class="py-3 px-3">10:14 AM</td>
-                    <td class="py-3 px-3">1x Truffle Carbonara, 1x Cold Brew</td>
-                    <td class="py-3 px-3 font-bold text-stone-900">$18.15</td>
-                    <td class="py-3 px-3">
-                      <button onclick="alert('Thermal bill #POS-1001 re-printed!')" class="text-amber-600 hover:underline font-semibold">Reprint</button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+            <div class="pt-4 border-t border-[#808080]/15 mt-4">
+              <div class="flex items-center gap-2 px-3 py-2 bg-[#F8F8F7] rounded-xl text-xs text-[#808080]">
+                <i data-lucide="search" class="w-3.5 h-3.5"></i>
+                <input type="text" placeholder="Search for order..." class="bg-transparent outline-none flex-1 text-black font-medium" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Order Details & Bill Breakdown (Exact Screen 2) -->
+          <div class="flex-1 p-8 flex flex-col justify-between overflow-y-auto bg-white">
+            <div>
+              <div class="flex items-center justify-between pb-6 border-b border-[#808080]/15">
+                <div class="flex items-center gap-3">
+                  <h2 id="inspect-order-title" class="text-2xl font-black text-black">Order #35</h2>
+                  <span id="inspect-order-badge" class="px-3 py-1 bg-[#FFCA40] text-black font-extrabold text-xs rounded-full">Active</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs font-bold text-black cursor-pointer">
+                  <i data-lucide="clock" class="w-4 h-4 text-[#808080]"></i>
+                  <span>Payment history</span>
+                  <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-[#808080]"></i>
+                </div>
+              </div>
+
+              <!-- Details Grid (Table, Guests, Customer, Payment) -->
+              <div class="py-6">
+                <span class="text-xs font-bold text-black block mb-4">Details</span>
+                <div class="grid grid-cols-4 gap-4 text-xs font-bold text-black">
+                  <div>
+                    <span class="text-[11px] text-[#808080] font-normal block mb-1">Table</span>
+                    <span id="inspect-table">2B</span>
+                  </div>
+                  <div>
+                    <span class="text-[11px] text-[#808080] font-normal block mb-1">Guests</span>
+                    <span id="inspect-guests">2</span>
+                  </div>
+                  <div>
+                    <span class="text-[11px] text-[#808080] font-normal block mb-1">Customer</span>
+                    <span id="inspect-customer">Kate Woods</span>
+                  </div>
+                  <div>
+                    <span class="text-[11px] text-[#808080] font-normal block mb-1">Payment</span>
+                    <span id="inspect-payment">By Cash</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Order info Itemized Table from Screen 2 -->
+              <div class="pt-4 border-t border-[#808080]/15">
+                <div class="flex justify-between items-center text-xs text-[#808080] mb-4">
+                  <span class="font-bold text-black">Order info</span>
+                  <span>Price</span>
+                </div>
+
+                <div id="inspect-items-list" class="space-y-4 text-xs font-bold text-black">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-2xl bg-[#FFCA40]/20 flex items-center justify-center text-lg">🍔</div>
+                      <span>1xHamburger</span>
+                    </div>
+                    <span class="font-mono">$4.50</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-2xl bg-[#FFCA40]/20 flex items-center justify-center text-lg">🥤</div>
+                      <span>2xLatte</span>
+                    </div>
+                    <span class="font-mono">$5.00</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-2xl bg-[#FFCA40]/20 flex items-center justify-center text-lg">🍩</div>
+                      <span>2xChocolate Donut</span>
+                    </div>
+                    <span class="font-mono">$2.00</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-2xl bg-[#FFCA40]/20 flex items-center justify-center text-lg">🍲</div>
+                      <span>1xTomato Cream Soup</span>
+                    </div>
+                    <span class="font-mono">$3.21</span>
+                  </div>
+                </div>
+
+                <div class="flex justify-between items-center pt-6 mt-6 border-t border-[#808080]/15 text-sm font-extrabold text-black">
+                  <span>Total</span>
+                  <span id="inspect-total" class="text-base font-mono">$14.71</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Signature Yellow Charge Customer Button -->
+            <div class="pt-6">
+              <button onclick="chargeInspectedCustomer()" id="btn-charge-customer" class="w-full py-4 bg-[#FFCA40] hover:bg-[#e6b537] active:scale-[0.99] text-black font-extrabold rounded-2xl shadow-sm transition text-xs tracking-wide">
+                Charge customer $14.71
+              </button>
             </div>
           </div>
         </section>
 
-        <!-- ================= 5. SETTINGS VIEW (Full Wireframe Submodules) ================= -->
+        <!-- ================= 5. SETTINGS VIEW (EXACT ATTACHED SCREEN 1) ================= -->
         <section id="view-settings" class="flex-1 p-8 overflow-y-auto hidden">
-          <div class="max-w-5xl mx-auto flex gap-6">
+          <div class="max-w-5xl mx-auto flex gap-10">
             
-            <!-- Settings Sub-Navigation -->
-            <div class="w-56 space-y-1 select-none">
-              <button onclick="switchSettingsSection('profile')" id="setnav-profile" class="setnav-btn w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs bg-amber-600 text-white transition">
-                Profile
-              </button>
-              <button onclick="switchSettingsSection('notifications')" id="setnav-notifications" class="setnav-btn w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs text-stone-600 hover:bg-stone-50 transition">
-                Notifications
-              </button>
-              <button onclick="switchSettingsSection('appearance')" id="setnav-appearance" class="setnav-btn w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs text-stone-600 hover:bg-stone-50 transition">
-                Appearance
-              </button>
-              <button onclick="switchSettingsSection('checkout')" id="setnav-checkout" class="setnav-btn w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs text-stone-600 hover:bg-stone-50 transition">
-                Checkout Settings
-              </button>
-              <button onclick="switchSettingsSection('security')" id="setnav-security" class="setnav-btn w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs text-stone-600 hover:bg-stone-50 transition">
-                Security
-              </button>
-              <button onclick="switchSettingsSection('language')" id="setnav-language" class="setnav-btn w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs text-stone-600 hover:bg-stone-50 transition">
-                Language & Region
-              </button>
+            <!-- Left Sub-Menu Column from Screen 1 -->
+            <div class="w-64 space-y-6 select-none shrink-0">
+              <h2 class="text-2xl font-black text-black">Settings</h2>
+
+              <div class="space-y-1">
+                <!-- Profile -->
+                <button onclick="switchSettingsSection('profile')" id="setnav-profile" class="setnav-btn w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold text-[#808080] hover:bg-[#F8F8F7] transition group">
+                  <div class="flex items-center gap-3">
+                    <i data-lucide="user" class="w-4 h-4 text-[#808080] group-hover:text-black"></i>
+                    <span>Profile</span>
+                  </div>
+                  <span class="indicator-bar w-1 h-5 bg-[#FFCA40] rounded-full hidden"></span>
+                </button>
+
+                <!-- Notifications (Active in Screen 1) -->
+                <button onclick="switchSettingsSection('notifications')" id="setnav-notifications" class="setnav-btn w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold text-black bg-[#F8F8F7] shadow-sm transition group">
+                  <div class="flex items-center gap-3">
+                    <i data-lucide="bell" class="w-4 h-4 text-black"></i>
+                    <span>Notifications</span>
+                  </div>
+                  <span class="indicator-bar w-1 h-5 bg-[#FFCA40] rounded-full block"></span>
+                </button>
+
+                <!-- Appearance -->
+                <button onclick="switchSettingsSection('appearance')" id="setnav-appearance" class="setnav-btn w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold text-[#808080] hover:bg-[#F8F8F7] transition group">
+                  <div class="flex items-center gap-3">
+                    <i data-lucide="sun" class="w-4 h-4 text-[#808080] group-hover:text-black"></i>
+                    <span>Appearance</span>
+                  </div>
+                  <span class="indicator-bar w-1 h-5 bg-[#FFCA40] rounded-full hidden"></span>
+                </button>
+
+                <!-- Checkout settings -->
+                <button onclick="switchSettingsSection('checkout')" id="setnav-checkout" class="setnav-btn w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold text-[#808080] hover:bg-[#F8F8F7] transition group">
+                  <div class="flex items-center gap-3">
+                    <i data-lucide="sliders" class="w-4 h-4 text-[#808080] group-hover:text-black"></i>
+                    <span>Checkout settings</span>
+                  </div>
+                  <span class="indicator-bar w-1 h-5 bg-[#FFCA40] rounded-full hidden"></span>
+                </button>
+
+                <!-- Security -->
+                <button onclick="switchSettingsSection('security')" id="setnav-security" class="setnav-btn w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold text-[#808080] hover:bg-[#F8F8F7] transition group">
+                  <div class="flex items-center gap-3">
+                    <i data-lucide="shield" class="w-4 h-4 text-[#808080] group-hover:text-black"></i>
+                    <span>Security</span>
+                  </div>
+                  <span class="indicator-bar w-1 h-5 bg-[#FFCA40] rounded-full hidden"></span>
+                </button>
+
+                <!-- Language & Region -->
+                <button onclick="switchSettingsSection('language')" id="setnav-language" class="setnav-btn w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold text-[#808080] hover:bg-[#F8F8F7] transition group">
+                  <div class="flex items-center gap-3">
+                    <i data-lucide="globe" class="w-4 h-4 text-[#808080] group-hover:text-black"></i>
+                    <span>Language & Region</span>
+                  </div>
+                  <span class="indicator-bar w-1 h-5 bg-[#FFCA40] rounded-full hidden"></span>
+                </button>
+              </div>
             </div>
 
-            <!-- Settings Content Pane -->
-            <div class="flex-1 bg-white rounded-2xl border border-stone-200 p-6 min-h-[450px]">
+            <!-- Right Content Card -->
+            <div class="flex-1 bg-white rounded-[32px] border border-[#808080]/15 p-8 min-h-[560px] shadow-sm flex flex-col justify-between">
               
-              <!-- Submodule: Profile -->
-              <div id="subsetting-profile" class="space-y-6">
+              <!-- 1. NOTIFICATIONS TABLE (EXACT ATTACHED SCREEN 1) -->
+              <div id="subsetting-notifications" class="subsetting-pane space-y-6">
                 <div>
-                  <h3 class="font-bold text-stone-900 text-base">Profile Management</h3>
-                  <p class="text-xs text-stone-400">Manage your credentials and staff identity</p>
+                  <h3 class="text-xl font-bold text-black">Notifications</h3>
+                  <p class="text-xs text-[#808080] mt-1 font-medium">Select the notifications you want to receive</p>
                 </div>
 
-                <!-- Personal Information -->
-                <div class="pt-4 border-t border-stone-100">
-                  <h4 class="text-xs font-bold text-stone-700 uppercase tracking-wider mb-2">Personal Information</h4>
-                  <div class="grid grid-cols-2 gap-3 max-w-md">
-                    <div>
-                      <span class="text-[11px] text-stone-400">Current Role</span>
-                      <p class="text-xs font-semibold text-stone-800">Barista / Terminal Cashier</p>
+                <!-- Notifications Grid Table from Screen 1 -->
+                <div class="pt-2">
+                  <div class="grid grid-cols-12 text-xs font-bold text-[#808080] pb-3 border-b border-[#808080]/10">
+                    <div class="col-span-6">Notification</div>
+                    <div class="col-span-3 text-center">Push</div>
+                    <div class="col-span-3 text-center">Email</div>
+                  </div>
+
+                  <div class="divide-y divide-[#808080]/10 text-xs font-bold text-black">
+                    <!-- New messages -->
+                    <div class="grid grid-cols-12 items-center py-4">
+                      <div class="col-span-6">New messages</div>
+                      <div class="col-span-3 flex justify-center">
+                        <label class="switch"><input type="checkbox" checked /><span class="slider"></span></label>
+                      </div>
+                      <div class="col-span-3 flex justify-center">
+                        <label class="switch"><input type="checkbox" /><span class="slider"></span></label>
+                      </div>
                     </div>
-                    <div>
-                      <span class="text-[11px] text-stone-400">Connected Account</span>
-                      <p id="settings-email-display" class="text-xs font-semibold text-stone-800 truncate">ratanayorng@gmail.com</p>
+
+                    <!-- Weelky report -->
+                    <div class="grid grid-cols-12 items-center py-4">
+                      <div class="col-span-6">Weelky report</div>
+                      <div class="col-span-3 flex justify-center">
+                        <label class="switch"><input type="checkbox" /><span class="slider"></span></label>
+                      </div>
+                      <div class="col-span-3 flex justify-center">
+                        <label class="switch"><input type="checkbox" checked /><span class="slider"></span></label>
+                      </div>
+                    </div>
+
+                    <!-- Payment success -->
+                    <div class="grid grid-cols-12 items-center py-4">
+                      <div class="col-span-6">Payment success</div>
+                      <div class="col-span-3 flex justify-center">
+                        <label class="switch"><input type="checkbox" checked /><span class="slider"></span></label>
+                      </div>
+                      <div class="col-span-3 flex justify-center">
+                        <label class="switch"><input type="checkbox" /><span class="slider"></span></label>
+                      </div>
+                    </div>
+
+                    <!-- Billing alert -->
+                    <div class="grid grid-cols-12 items-center py-4">
+                      <div class="col-span-6">Billing alert</div>
+                      <div class="col-span-3 flex justify-center">
+                        <label class="switch"><input type="checkbox" checked /><span class="slider"></span></label>
+                      </div>
+                      <div class="col-span-3 flex justify-center">
+                        <label class="switch"><input type="checkbox" /><span class="slider"></span></label>
+                      </div>
+                    </div>
+
+                    <!-- New inventation -->
+                    <div class="grid grid-cols-12 items-center py-4">
+                      <div class="col-span-6">New inventation</div>
+                      <div class="col-span-3 flex justify-center">
+                        <label class="switch"><input type="checkbox" /><span class="slider"></span></label>
+                      </div>
+                      <div class="col-span-3 flex justify-center">
+                        <label class="switch"><input type="checkbox" checked /><span class="slider"></span></label>
+                      </div>
                     </div>
                   </div>
                 </div>
+              </div>
 
-                <!-- Login & Password -->
-                <div class="pt-4 border-t border-stone-100">
-                  <h4 class="text-xs font-bold text-stone-700 uppercase tracking-wider mb-3">Login & Password</h4>
-                  <form onsubmit="event.preventDefault(); submitPasswordChange();" class="space-y-3">
-                    <div>
-                      <label class="block text-xs text-stone-500 mb-1">Update Password</label>
-                      <input type="password" id="settings-new-password" required placeholder="Enter new password (min 6 chars)" autocomplete="new-password"
-                        class="w-full max-w-sm px-4 py-2.5 rounded-xl bg-stone-50 border border-stone-200 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500" />
+              <!-- 2. APPEARANCE PANE -->
+              <div id="subsetting-appearance" class="subsetting-pane space-y-8 hidden">
+                <h3 class="text-xl font-bold text-black">Appearance</h3>
+                <div class="space-y-4">
+                  <span class="text-xs font-bold text-black uppercase tracking-wider">Theme</span>
+                  <div class="space-y-3 max-w-sm">
+                    <div class="flex items-center justify-between text-xs font-bold text-black">
+                      <span>Light</span>
+                      <label class="switch"><input type="checkbox" checked /><span class="slider"></span></label>
                     </div>
-                    <button type="submit" class="px-5 py-2.5 bg-stone-900 hover:bg-stone-800 text-white font-semibold text-xs rounded-xl transition">
-                      Save New Password
-                    </button>
-                  </form>
-                </div>
-
-                <!-- Log Out -->
-                <div class="pt-4 border-t border-stone-100">
-                  <h4 class="text-xs font-bold text-stone-700 uppercase tracking-wider mb-2">Terminal Log Out</h4>
-                  <button onclick="handleSignOut()" class="px-5 py-2.5 bg-red-50 text-red-600 hover:bg-red-100 font-semibold text-xs rounded-xl transition">
-                    Sign Out of Terminal
-                  </button>
-                </div>
-              </div>
-
-              <!-- Submodule: Notifications -->
-              <div id="subsetting-notifications" class="space-y-4 hidden">
-                <h3 class="font-bold text-stone-900 text-base">Alert & Sound Preferences</h3>
-                <div class="space-y-3 text-xs pt-2">
-                  <label class="flex items-center gap-3 cursor-pointer">
-                    <input type="checkbox" checked class="rounded text-amber-600 focus:ring-amber-500 w-4 h-4" />
-                    <span>Play acoustic chime when an order is completed</span>
-                  </label>
-                  <label class="flex items-center gap-3 cursor-pointer">
-                    <input type="checkbox" checked class="rounded text-amber-600 focus:ring-amber-500 w-4 h-4" />
-                    <span>Display banner on urgent shift messages</span>
-                  </label>
-                  <label class="flex items-center gap-3 cursor-pointer">
-                    <input type="checkbox" checked class="rounded text-amber-600 focus:ring-amber-500 w-4 h-4" />
-                    <span>Low stock warnings (less than 5 items remaining)</span>
-                  </label>
-                </div>
-              </div>
-
-              <!-- Submodule: Appearance -->
-              <div id="subsetting-appearance" class="space-y-4 hidden">
-                <h3 class="font-bold text-stone-900 text-base">Appearance</h3>
-                <p class="text-xs text-stone-400">Terminal interface theme options</p>
-                <div class="flex gap-4 pt-2 text-xs">
-                  <button class="px-4 py-3 border-2 border-amber-600 rounded-xl bg-amber-50 font-bold text-amber-900">☀️ Artisan Warm (Active)</button>
-                  <button onclick="alert('Dark Mode will be enabled in next release!')" class="px-4 py-3 border border-stone-200 rounded-xl font-semibold text-stone-600 hover:bg-stone-50">🌙 Night Shift Dark</button>
-                </div>
-              </div>
-
-              <!-- Submodule: Checkout Settings -->
-              <div id="subsetting-checkout" class="space-y-4 hidden">
-                <h3 class="font-bold text-stone-900 text-base">Checkout Settings</h3>
-                <div class="max-w-xs space-y-3 text-xs pt-2">
-                  <div>
-                    <label class="block text-stone-500 mb-1 font-semibold">Tax Rate (%)</label>
-                    <input type="number" id="tax-rate-input" value="10" min="0" max="30" onchange="updateTaxRate(this.value)"
-                      class="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl font-semibold" />
+                    <div class="flex items-center justify-between text-xs font-bold text-black">
+                      <span>Dark</span>
+                      <label class="switch"><input type="checkbox" /><span class="slider"></span></label>
+                    </div>
                   </div>
-                  <div>
-                    <label class="block text-stone-500 mb-1 font-semibold">Currency Format</label>
-                    <input type="text" value="USD ($)" readonly class="w-full px-3 py-2 bg-stone-100 border border-stone-200 rounded-xl font-semibold text-stone-500" />
+                </div>
+                <div class="space-y-4">
+                  <span class="text-xs font-bold text-black uppercase tracking-wider">Size</span>
+                  <div class="space-y-3 max-w-sm">
+                    <div class="flex items-center justify-between text-xs font-bold text-black">
+                      <span>Font size</span>
+                      <select class="px-3.5 py-1.5 bg-[#F8F8F7] border border-[#808080]/20 rounded-xl font-bold text-xs">
+                        <option>16</option>
+                      </select>
+                    </div>
+                    <div class="flex items-center justify-between text-xs font-bold text-black">
+                      <span>Card's size</span>
+                      <select class="px-3.5 py-1.5 bg-[#F8F8F7] border border-[#808080]/20 rounded-xl font-bold text-xs">
+                        <option>330x440</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <!-- Submodule: Security -->
-              <div id="subsetting-security" class="space-y-4 hidden">
-                <h3 class="font-bold text-stone-900 text-base">Security & Terminals</h3>
-                <div class="space-y-3 text-xs pt-2">
-                  <div>
-                    <label class="block text-stone-500 mb-1 font-semibold">Manager PIN for Bill Voiding</label>
-                    <input type="password" value="8888" class="px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl font-semibold" />
+              <!-- 3. CHECKOUT SETTINGS PANE -->
+              <div id="subsetting-checkout" class="subsetting-pane space-y-8 hidden">
+                <h3 class="text-xl font-bold text-black">Checkout settings</h3>
+                <div class="space-y-3 max-w-sm">
+                  <div class="flex items-center justify-between text-xs font-bold text-black">
+                    <span>Save payment history</span>
+                    <label class="switch"><input type="checkbox" checked /><span class="slider"></span></label>
                   </div>
-                  <label class="flex items-center gap-3 cursor-pointer pt-2">
-                    <input type="checkbox" checked class="rounded text-amber-600 focus:ring-amber-500 w-4 h-4" />
-                    <span>Auto-lock register screen after 15 minutes of inactivity</span>
-                  </label>
+                  <button class="text-xs text-[#2F80ED] hover:underline font-bold block">Clear history</button>
                 </div>
               </div>
 
-              <!-- Submodule: Language & Region -->
-              <div id="subsetting-language" class="space-y-4 hidden">
-                <h3 class="font-bold text-stone-900 text-base">Language & Region</h3>
-                <div class="max-w-xs space-y-3 text-xs pt-2">
+              <!-- 4. SECURITY PANE -->
+              <div id="subsetting-security" class="subsetting-pane space-y-8 hidden">
+                <h3 class="text-xl font-bold text-black">Security</h3>
+                <div class="space-y-1 max-w-md">
+                  <div class="flex items-center gap-2 font-bold text-xs text-black">
+                    <i data-lucide="bell" class="w-4 h-4 text-black"></i>
+                    <span>Security alert</span>
+                  </div>
+                  <p class="text-[11px] text-[#808080] pl-6 font-normal">
+                    You will get alerts when someone tries logging in to your account from an unknown device
+                  </p>
+                </div>
+              </div>
+
+              <!-- 5. LANGUAGE & REGION PANE -->
+              <div id="subsetting-language" class="subsetting-pane space-y-6 hidden">
+                <h3 class="text-xl font-bold text-black">Language & Region</h3>
+                <div class="space-y-4 max-w-sm">
                   <div>
-                    <label class="block text-stone-500 mb-1 font-semibold">Interface Language</label>
-                    <select class="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl font-semibold">
-                      <option value="en" selected>English (US)</option>
-                      <option value="km">Khmer (ភាសាខ្មែរ)</option>
-                      <option value="fr">Français</option>
+                    <label class="block text-xs font-medium text-[#808080] mb-2">Choose region</label>
+                    <select class="w-full px-4 py-3 bg-[#F8F8F7] border border-[#808080]/20 rounded-2xl font-bold text-xs">
+                      <option>🇺🇸 New York, USA</option>
                     </select>
                   </div>
                   <div>
-                    <label class="block text-stone-500 mb-1 font-semibold">Timezone</label>
-                    <input type="text" value="Asia/Phnom_Penh (GMT+7)" readonly class="w-full px-3 py-2 bg-stone-100 border border-stone-200 rounded-xl font-semibold text-stone-500" />
+                    <label class="block text-xs font-medium text-[#808080] mb-2">Choose language</label>
+                    <select class="w-full px-4 py-3 bg-[#F8F8F7] border border-[#808080]/20 rounded-2xl font-bold text-xs">
+                      <option>🇬🇧 English</option>
+                    </select>
                   </div>
                 </div>
+              </div>
+
+              <!-- 6. PROFILE PANE -->
+              <div id="subsetting-profile" class="subsetting-pane space-y-6 hidden">
+                <h3 class="text-xl font-bold text-black">Profile</h3>
+                <div class="space-y-4 max-w-md">
+                  <div>
+                    <span class="text-xs text-[#808080] font-semibold">Registered Staff Email</span>
+                    <p id="settings-email-display" class="font-bold text-black text-sm">ratanayorng@gmail.com</p>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-black mb-1">Update Password</label>
+                    <input type="password" id="settings-new-password" placeholder="New password (min 6 chars)" autocomplete="new-password"
+                      class="w-full px-4 py-3 bg-[#F8F8F7] border border-[#808080]/20 rounded-2xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#FFCA40]" />
+                  </div>
+                  <button onclick="submitPasswordChange()" class="px-5 py-3 bg-black hover:bg-black/80 text-white font-bold text-xs rounded-2xl transition">
+                    Update Password in Supabase
+                  </button>
+                  <div class="pt-4 border-t border-[#808080]/15">
+                    <button onclick="handleSignOut()" class="text-xs font-bold text-[#C8161D] hover:underline">
+                      Sign Out of Terminal
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Signature Save Changes Button -->
+              <div class="pt-6 border-t border-[#808080]/15">
+                <button onclick="alert('Settings changes successfully saved!')" class="w-full py-4 bg-[#FFCA40] hover:bg-[#e6b537] active:scale-[0.99] text-black font-extrabold rounded-2xl shadow-sm transition text-xs tracking-wide">
+                  Save Changes
+                </button>
               </div>
 
             </div>
@@ -539,33 +1062,142 @@
     </main>
   </div>
 
-  <!-- ================= ITEM ADD / EDIT MODAL ================= -->
-  <div id="item-modal" class="fixed inset-0 z-50 bg-stone-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl border border-stone-200">
-      <div class="flex items-center justify-between pb-3 border-b border-stone-100">
-        <h4 id="item-modal-title" class="font-bold text-stone-800 text-sm">Add or Edit Menu Item</h4>
-        <button onclick="closeItemModal()" class="text-stone-400 hover:text-stone-700">✕</button>
+  <!-- ================= PRODUCT CUSTOMIZATION MODAL ================= -->
+  <div id="customize-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-[32px] w-full max-w-md p-6 shadow-2xl border border-[#808080]/15">
+      <div class="flex items-start justify-between pb-4 border-b border-[#808080]/15">
+        <div class="flex items-center gap-3">
+          <div id="cust-item-icon" class="text-3xl">☕</div>
+          <div>
+            <h3 id="cust-item-name" class="font-bold text-black text-base">Item Name</h3>
+            <p id="cust-item-base-price" class="text-xs font-bold text-[#C8161D] font-mono">$0.00</p>
+          </div>
+        </div>
+        <button onclick="closeCustomizerModal()" class="text-[#808080] hover:text-black p-1 font-bold">✕</button>
+      </div>
+
+      <div class="py-4 space-y-4 text-xs">
+        <div id="drink-modifiers" class="space-y-3">
+          <div>
+            <label class="block font-bold text-black mb-1.5">Sweetness Level</label>
+            <div class="grid grid-cols-4 gap-2 font-bold">
+              <button type="button" onclick="setSweetness(this, '0%')" class="btn-opt px-3 py-2 rounded-xl border border-[#808080]/20 text-[#808080]">0%</button>
+              <button type="button" onclick="setSweetness(this, '50%')" class="btn-opt px-3 py-2 rounded-xl border border-[#808080]/20 text-[#808080]">50%</button>
+              <button type="button" onclick="setSweetness(this, '70%')" class="btn-opt px-3 py-2 rounded-xl border-2 border-[#FFCA40] bg-[#FFCA40]/20 text-black font-extrabold">70%</button>
+              <button type="button" onclick="setSweetness(this, '100%')" class="btn-opt px-3 py-2 rounded-xl border border-[#808080]/20 text-[#808080]">100%</button>
+            </div>
+          </div>
+          <div>
+            <label class="block font-bold text-black mb-1.5">Ice Level</label>
+            <div class="grid grid-cols-3 gap-2 font-bold">
+              <button type="button" onclick="setIce(this, 'No Ice')" class="btn-ice px-3 py-2 rounded-xl border border-[#808080]/20 text-[#808080]">No Ice</button>
+              <button type="button" onclick="setIce(this, 'Normal')" class="btn-ice px-3 py-2 rounded-xl border-2 border-[#FFCA40] bg-[#FFCA40]/20 text-black font-extrabold">Normal</button>
+              <button type="button" onclick="setIce(this, 'Extra Ice')" class="btn-ice px-3 py-2 rounded-xl border border-[#808080]/20 text-[#808080]">Extra</button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-black mb-1.5">Extra Add-ons</label>
+          <div class="space-y-2">
+            <label class="flex items-center justify-between p-2.5 rounded-2xl bg-[#F8F8F7] border border-[#808080]/20 cursor-pointer">
+              <span class="flex items-center gap-2 font-semibold text-black"><input type="checkbox" id="addon-shot" value="0.75" onchange="calculateCustTotal()" class="rounded text-[#C8161D] w-4 h-4" /> Extra Espresso Shot</span>
+              <span class="font-bold text-[#C8161D] font-mono">+$0.75</span>
+            </label>
+            <label class="flex items-center justify-between p-2.5 rounded-2xl bg-[#F8F8F7] border border-[#808080]/20 cursor-pointer">
+              <span class="flex items-center gap-2 font-semibold text-black"><input type="checkbox" id="addon-cheese" value="1.00" onchange="calculateCustTotal()" class="rounded text-[#C8161D] w-4 h-4" /> Extra Cheese / Cream</span>
+              <span class="font-bold text-[#C8161D] font-mono">+$1.00</span>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-black mb-1">Special Instruction</label>
+          <input type="text" id="cust-note" placeholder="e.g. Oat milk swap, allergies..."
+            class="w-full px-3.5 py-2.5 bg-[#F8F8F7] border border-[#808080]/20 rounded-xl font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FFCA40]" />
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-[#808080]/15 flex items-center justify-between">
+        <div>
+          <span class="text-[11px] text-[#808080] font-medium">Calculated Item Total</span>
+          <p id="cust-modal-total" class="text-xl font-black text-black font-mono">$0.00</p>
+        </div>
+        <button onclick="commitCustomizedItemToCart()" class="px-6 py-3.5 bg-[#FFCA40] hover:bg-[#e6b537] active:scale-[0.98] text-black font-extrabold rounded-2xl transition shadow-sm">
+          Add to Cart
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= CHECKOUT MODAL ================= -->
+  <div id="checkout-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-[32px] w-full max-w-md p-6 shadow-2xl border border-[#808080]/15">
+      <div class="flex items-center justify-between pb-3 border-b border-[#808080]/15">
+        <h3 class="font-bold text-black text-base">Payment Checkout</h3>
+        <button onclick="closeCheckoutModal()" class="text-[#808080] hover:text-black">✕</button>
+      </div>
+
+      <div class="py-4 space-y-4 text-xs">
+        <div class="bg-[#F8F8F7] p-4 rounded-2xl border border-[#808080]/20 flex justify-between items-center">
+          <div>
+            <span class="text-[#808080] font-medium">Total Due for Bill</span>
+            <p id="checkout-modal-amount" class="text-3xl font-black text-[#C8161D] font-mono">$0.00</p>
+          </div>
+          <span id="checkout-modal-table" class="px-3.5 py-1 bg-[#FFCA40] rounded-full font-bold text-black">Takeaway</span>
+        </div>
+
+        <div>
+          <label class="block font-bold text-black mb-1.5">Payment Method</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" class="py-3.5 rounded-2xl border-2 border-[#C8161D] bg-[#C8161D]/10 font-bold text-[#C8161D] flex flex-col items-center gap-1">
+              💵 Cash
+            </button>
+            <button type="button" class="py-3.5 rounded-2xl border border-[#808080]/20 font-bold text-[#808080] flex flex-col items-center gap-1">
+              💳 Card
+            </button>
+            <button type="button" class="py-3.5 rounded-2xl border border-[#808080]/20 font-bold text-[#808080] flex flex-col items-center gap-1">
+              📱 QR Pay
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-[#808080]/15 flex gap-2">
+        <button onclick="finalizePaymentAndPrint()" class="flex-1 py-4 bg-[#FFCA40] hover:bg-[#e6b537] active:scale-[0.98] text-black font-extrabold rounded-2xl shadow-sm transition text-xs tracking-wide uppercase">
+          Confirm Payment & Print Receipt
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MENU MANAGEMENT MODAL ================= -->
+  <div id="item-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-[32px] w-full max-w-md p-6 shadow-2xl border border-[#808080]/15">
+      <div class="flex items-center justify-between pb-3 border-b border-[#808080]/15">
+        <h4 class="font-bold text-black text-sm">Add or Edit Menu Catalog</h4>
+        <button onclick="closeMenuManagementModal()" class="text-[#808080] hover:text-black">✕</button>
       </div>
 
       <form onsubmit="event.preventDefault(); saveMenuItem();" class="space-y-3 pt-3 text-xs">
         <input type="hidden" id="edit-item-id" value="" />
         
         <div>
-          <label class="block text-stone-500 mb-1 font-semibold">Select Existing to Edit (or create new)</label>
-          <select id="edit-item-select" onchange="populateEditItemForm(this.value)" class="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl">
+          <label class="block text-[#808080] mb-1 font-bold">Select Existing Item</label>
+          <select id="edit-item-select" onchange="populateEditItemForm(this.value)" class="w-full px-3.5 py-2.5 bg-[#F8F8F7] border border-[#808080]/20 rounded-xl font-medium">
             <option value="NEW">+ Create New Item</option>
           </select>
         </div>
 
         <div>
-          <label class="block text-stone-500 mb-1 font-semibold">Item Name</label>
-          <input type="text" id="edit-item-name" required placeholder="e.g., Avocado Toast" class="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl" />
+          <label class="block text-[#808080] mb-1 font-bold">Item Name</label>
+          <input type="text" id="edit-item-name" required placeholder="e.g. Avocado Toast" class="w-full px-3.5 py-2.5 bg-[#F8F8F7] border border-[#808080]/20 rounded-xl font-medium" />
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-stone-500 mb-1 font-semibold">Category</label>
-            <select id="edit-item-category" class="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl">
+            <label class="block text-[#808080] mb-1 font-bold">Category</label>
+            <select id="edit-item-category" class="w-full px-3.5 py-2.5 bg-[#F8F8F7] border border-[#808080]/20 rounded-xl font-bold">
               <option value="Cold Drinks">Cold Drinks</option>
               <option value="Burgers">Burgers</option>
               <option value="Pizza">Pizza</option>
@@ -575,21 +1207,21 @@
             </select>
           </div>
           <div>
-            <label class="block text-stone-500 mb-1 font-semibold">Price ($)</label>
-            <input type="number" step="0.25" min="0" id="edit-item-price" required placeholder="4.50" class="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl" />
+            <label class="block text-[#808080] mb-1 font-bold">Price ($)</label>
+            <input type="number" step="0.25" min="0" id="edit-item-price" required placeholder="4.50" class="w-full px-3.5 py-2.5 bg-[#F8F8F7] border border-[#808080]/20 rounded-xl font-bold font-mono" />
           </div>
         </div>
 
         <div>
-          <label class="block text-stone-500 mb-1 font-semibold">Emoji Icon</label>
-          <input type="text" id="edit-item-icon" value="🍽️" class="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl" />
+          <label class="block text-[#808080] mb-1 font-bold">Emoji Icon</label>
+          <input type="text" id="edit-item-icon" value="🍽️" class="w-full px-3.5 py-2.5 bg-[#F8F8F7] border border-[#808080]/20 rounded-xl" />
         </div>
 
         <div class="pt-3 flex gap-2">
-          <button type="submit" class="flex-1 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl transition">
+          <button type="submit" class="flex-1 py-3 bg-[#FFCA40] hover:bg-[#e6b537] text-black font-extrabold rounded-xl transition">
             Save Item
           </button>
-          <button type="button" id="btn-delete-item" onclick="deleteMenuItem()" class="hidden px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-xl transition">
+          <button type="button" id="btn-delete-item" onclick="deleteMenuItem()" class="hidden px-4 py-3 bg-[#C8161D]/10 hover:bg-[#C8161D]/20 text-[#C8161D] font-bold rounded-xl transition">
             Delete
           </button>
         </div>
@@ -597,9 +1229,8 @@
     </div>
   </div>
 
-  <!-- ================= LOGIC & SUPABASE CLIENT ================= -->
+  <!-- ================= LOGIC & SUPABASE APPLICATION CLIENT ================= -->
   <script>
-    // Supabase project credentials
     const SUPABASE_URL = "https://pbsrwpysykxqwegcayjq.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBic3J3cHlzeWt4cXdlZ2NheWpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3NjcwNDYsImV4cCI6MjEwNTM0MzA0Nn0.e4gRaGMWzGG0eApOI_tcLvjBZLDtTlAVsq8DGBqhExY";
 
@@ -608,23 +1239,28 @@
       supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     }
 
-    // ---------------- AUTHENTICATION ----------------
+    // ---------------- AUTH ----------------
+    function togglePasswordVisibility(fieldId) {
+      const field = document.getElementById(fieldId);
+      field.type = field.type === "password" ? "text" : "password";
+    }
+
     function toggleAuthMode(mode) {
       const signInForm = document.getElementById("signin-form");
       const signUpForm = document.getElementById("signup-form");
-      const authTitle = document.getElementById("auth-title");
-      const authSubtitle = document.getElementById("auth-subtitle");
+      const mainHeading = document.getElementById("auth-main-heading");
+      const subHeading = document.getElementById("auth-sub-heading");
 
       if (mode === 'signup') {
         signInForm.classList.add("hidden");
         signUpForm.classList.remove("hidden");
-        authTitle.textContent = "Create Staff Account";
-        authSubtitle.textContent = "Sign up to access POS terminals";
+        mainHeading.textContent = "Create Account";
+        subHeading.textContent = "Register a new terminal staff member";
       } else {
         signUpForm.classList.add("hidden");
         signInForm.classList.remove("hidden");
-        authTitle.textContent = "Sign in to Cafe POS";
-        authSubtitle.textContent = "Enter your credentials to access the register";
+        mainHeading.textContent = "Welcome Back!";
+        subHeading.textContent = "Please, sign in to continue";
       }
     }
 
@@ -632,7 +1268,7 @@
       const email = document.getElementById("login-email").value.trim();
       const password = document.getElementById("login-password").value;
 
-      if (!email || !password) return alert("Please enter both email and password.");
+      if (!email || !password) return alert("Please enter both ID/email and password.");
 
       if (supabaseClient) {
         const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
@@ -660,7 +1296,7 @@
         if (error) {
           alert("Sign up error: " + error.message);
         } else {
-          alert("Account registered successfully! You can now sign in.");
+          alert("Account created successfully! You can now sign in.");
           toggleAuthMode('signin');
         }
       }
@@ -673,9 +1309,9 @@
       if (supabaseClient) {
         const { data, error } = await supabaseClient.auth.updateUser({ password: newPassword });
         if (error) {
-          alert("Password update failed: " + error.message);
+          alert("Update failed: " + error.message);
         } else {
-          alert("Password updated successfully!");
+          alert("Password successfully updated in Supabase!");
           document.getElementById("settings-new-password").value = "";
         }
       }
@@ -691,15 +1327,13 @@
     function updateUserSessionState(user) {
       const authView = document.getElementById("auth-view");
       const appContainer = document.getElementById("app-container");
-      const emailBadge = document.getElementById("user-profile-email");
       const nameBadge = document.getElementById("user-display-name");
       const settingsEmail = document.getElementById("settings-email-display");
 
       if (user) {
         authView.classList.add("hidden");
         appContainer.classList.remove("hidden");
-        const displayName = user.user_metadata?.full_name || user.email.split("@")[0];
-        if (emailBadge) emailBadge.textContent = user.email;
+        const displayName = user.user_metadata?.full_name || "Theresa Webb";
         if (nameBadge) nameBadge.textContent = displayName;
         if (settingsEmail) settingsEmail.textContent = user.email;
       } else {
@@ -718,8 +1352,8 @@
       });
     }
 
-    // ---------------- 6 WIREFRAME CATALOG CATEGORIES ----------------
-    const DEFAULT_ITEMS = [
+    // ---------------- MENU DATA ----------------
+    const INITIAL_CATALOG = [
       { id: 1, name: "Iced Caramel Macchiato", category: "Cold Drinks", price: 4.50, icon: "🥤" },
       { id: 2, name: "Cold Brew Reserve", category: "Cold Drinks", price: 4.00, icon: "🧊" },
       { id: 3, name: "Iced Matcha Latte", category: "Cold Drinks", price: 4.75, icon: "🍵" },
@@ -735,18 +1369,22 @@
       { id: 13, name: "Pesto Genovese", category: "Pasta", price: 11.00, icon: "🌿" }
     ];
 
-    let MENU_ITEMS = JSON.parse(localStorage.getItem('pos_menu_items')) || DEFAULT_ITEMS;
+    let MENU_ITEMS = JSON.parse(localStorage.getItem('pos_artisan_menu')) || INITIAL_CATALOG;
     let cart = [];
     let activeCategory = "All";
     let currentTaxRate = 0.10;
+
+    let customizingItem = null;
+    let selectedSweetness = "70%";
+    let selectedIce = "Normal";
 
     function filterCategory(cat) {
       activeCategory = cat;
       document.querySelectorAll(".cat-pill").forEach(btn => {
         if (btn.textContent === cat) {
-          btn.className = "cat-pill px-4 py-2 rounded-full text-xs font-semibold bg-stone-900 text-white shadow-sm";
+          btn.className = "cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-black text-white shadow-sm transition";
         } else {
-          btn.className = "cat-pill px-4 py-2 rounded-full text-xs font-semibold bg-white border border-stone-200 text-stone-600 hover:bg-stone-50";
+          btn.className = "cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-white border border-[#808080]/20 text-[#808080] hover:text-black transition";
         }
       });
       renderCatalog();
@@ -757,44 +1395,110 @@
       const filtered = activeCategory === "All" ? MENU_ITEMS : MENU_ITEMS.filter(i => i.category === activeCategory);
       
       grid.innerHTML = filtered.map(item => `
-        <div onclick="addToCart(${item.id})" class="bg-white p-4 rounded-2xl border border-stone-200/90 hover:border-amber-500 hover:shadow-md transition cursor-pointer flex flex-col justify-between group">
+        <div onclick="openItemCustomizer(${item.id})" class="bg-white p-5 rounded-[24px] border border-[#808080]/15 hover:border-[#FFCA40] hover:shadow-lg transition-all cursor-pointer flex flex-col justify-between group">
           <div>
             <div class="flex justify-between items-start">
-              <div class="text-3xl mb-2 group-hover:scale-105 transition-transform">${item.icon}</div>
-              <button onclick="event.stopPropagation(); editSpecificItem(${item.id});" title="Edit Item" class="p-1 text-stone-300 hover:text-stone-700 rounded transition">
+              <span class="text-3xl mb-2 group-hover:scale-110 transition-transform">${item.icon}</span>
+              <button onclick="event.stopPropagation(); editSpecificMenuItem(${item.id});" title="Edit Item" class="p-1.5 text-[#808080] hover:text-black rounded-lg transition">
                 <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
               </button>
             </div>
-            <h4 class="font-bold text-stone-900 text-xs leading-snug">${item.name}</h4>
-            <span class="text-[10px] text-stone-400">${item.category}</span>
+            <h4 class="font-bold text-black text-sm leading-snug mt-1">${item.name}</h4>
+            <span class="text-[11px] text-[#808080] font-semibold">${item.category}</span>
           </div>
-          <div class="mt-3 flex items-center justify-between">
-            <span class="font-bold text-stone-800 text-xs">$${item.price.toFixed(2)}</span>
-            <button class="w-7 h-7 bg-stone-100 group-hover:bg-amber-600 group-hover:text-white rounded-lg flex items-center justify-center text-xs font-bold transition">+</button>
+          <div class="mt-4 flex items-center justify-between">
+            <span class="font-bold text-black text-sm font-mono">$${item.price.toFixed(2)}</span>
+            <span class="w-8 h-8 bg-[#F8F8F7] group-hover:bg-[#FFCA40] group-hover:text-black rounded-xl flex items-center justify-center text-sm font-black transition">+</span>
           </div>
         </div>
       `).join('');
       lucide.createIcons();
     }
 
-    function addToCart(itemId) {
-      const item = MENU_ITEMS.find(i => i.id === itemId);
-      const existing = cart.find(c => c.id === itemId);
-      if (existing) {
-        existing.qty += 1;
+    // Customizer Modal
+    function openItemCustomizer(id) {
+      const item = MENU_ITEMS.find(i => i.id === id);
+      if (!item) return;
+      customizingItem = item;
+
+      document.getElementById("cust-item-icon").textContent = item.icon;
+      document.getElementById("cust-item-name").textContent = item.name;
+      document.getElementById("cust-item-base-price").textContent = `$${item.price.toFixed(2)}`;
+      document.getElementById("cust-note").value = "";
+      document.getElementById("addon-shot").checked = false;
+      document.getElementById("addon-cheese").checked = false;
+
+      const drinkModifiers = document.getElementById("drink-modifiers");
+      if (item.category === "Cold Drinks") {
+        drinkModifiers.classList.remove("hidden");
       } else {
-        cart.push({ ...item, qty: 1 });
+        drinkModifiers.classList.add("hidden");
       }
-      updateCartUI();
+
+      calculateCustTotal();
+      document.getElementById("customize-modal").classList.remove("hidden");
     }
 
-    function updateQty(itemId, delta) {
-      const entry = cart.find(c => c.id === itemId);
-      if (!entry) return;
-      entry.qty += delta;
-      if (entry.qty <= 0) {
-        cart = cart.filter(c => c.id !== itemId);
+    function closeCustomizerModal() {
+      document.getElementById("customize-modal").classList.add("hidden");
+      customizingItem = null;
+    }
+
+    function setSweetness(btn, val) {
+      selectedSweetness = val;
+      document.querySelectorAll(".btn-opt").forEach(b => {
+        b.className = "btn-opt px-3 py-2 rounded-xl border border-[#808080]/20 text-[#808080]";
+      });
+      btn.className = "btn-opt px-3 py-2 rounded-xl border-2 border-[#FFCA40] bg-[#FFCA40]/20 text-black font-extrabold";
+    }
+
+    function setIce(btn, val) {
+      selectedIce = val;
+      document.querySelectorAll(".btn-ice").forEach(b => {
+        b.className = "btn-ice px-3 py-2 rounded-xl border border-[#808080]/20 text-[#808080]";
+      });
+      btn.className = "btn-ice px-3 py-2 rounded-xl border-2 border-[#FFCA40] bg-[#FFCA40]/20 text-black font-extrabold";
+    }
+
+    function calculateCustTotal() {
+      if (!customizingItem) return;
+      let total = customizingItem.price;
+      if (document.getElementById("addon-shot").checked) total += 0.75;
+      if (document.getElementById("addon-cheese").checked) total += 1.00;
+      document.getElementById("cust-modal-total").textContent = `$${total.toFixed(2)}`;
+      return total;
+    }
+
+    function commitCustomizedItemToCart() {
+      if (!customizingItem) return;
+      const unitPrice = calculateCustTotal();
+      const note = document.getElementById("cust-note").value.trim();
+      let mods = [];
+      if (customizingItem.category === "Cold Drinks") {
+        mods.push(`Sweet: ${selectedSweetness}`, `Ice: ${selectedIce}`);
       }
+      if (document.getElementById("addon-shot").checked) mods.push("+Extra Shot");
+      if (document.getElementById("addon-cheese").checked) mods.push("+Extra Cheese");
+      if (note) mods.push(`Note: ${note}`);
+
+      cart.push({
+        id: customizingItem.id,
+        name: customizingItem.name,
+        category: customizingItem.category,
+        price: unitPrice,
+        modsText: mods.join(', '),
+        qty: 1
+      });
+
+      updateCartUI();
+      closeCustomizerModal();
+    }
+
+    // Cart Handlers
+    function updateQty(index, delta) {
+      if (!cart[index]) return;
+      cart[index].qty += delta;
+      if (cart[index].qty <= 0) cart.splice(index, 1);
       updateCartUI();
     }
 
@@ -806,18 +1510,19 @@
     function updateCartUI() {
       const cartList = document.getElementById("cart-list");
       if (cart.length === 0) {
-        cartList.innerHTML = `<div class="py-12 text-center text-xs text-stone-400">Cart is empty</div>`;
+        cartList.innerHTML = `<div class="py-14 text-center text-xs text-[#808080] font-medium">Cart is empty.<br/>Select an item to customize and add.</div>`;
       } else {
-        cartList.innerHTML = cart.map(item => `
-          <div class="py-2.5 flex items-center justify-between text-xs">
+        cartList.innerHTML = cart.map((item, idx) => `
+          <div class="py-3 flex items-start justify-between text-xs">
             <div class="flex-1 pr-2">
-              <p class="font-bold text-stone-800">${item.name}</p>
-              <p class="text-stone-400 text-[11px]">$${item.price.toFixed(2)}</p>
+              <p class="font-bold text-black">${item.name}</p>
+              ${item.modsText ? `<p class="text-[10px] text-[#808080] font-medium mt-0.5">${item.modsText}</p>` : ''}
+              <p class="text-[#C8161D] font-bold font-mono mt-0.5">$${item.price.toFixed(2)}</p>
             </div>
-            <div class="flex items-center gap-2">
-              <button onclick="updateQty(${item.id}, -1)" class="w-6 h-6 rounded-md bg-stone-100 hover:bg-stone-200 text-stone-600 font-bold">-</button>
-              <span class="font-semibold text-stone-800 w-4 text-center">${item.qty}</span>
-              <button onclick="updateQty(${item.id}, 1)" class="w-6 h-6 rounded-md bg-stone-100 hover:bg-stone-200 text-stone-600 font-bold">+</button>
+            <div class="flex items-center gap-1.5 mt-1">
+              <button onclick="updateQty(${idx}, -1)" class="w-6 h-6 rounded-lg bg-[#F8F8F7] hover:bg-stone-200 text-black font-bold">-</button>
+              <span class="font-bold text-black w-4 text-center font-mono">${item.qty}</span>
+              <button onclick="updateQty(${idx}, 1)" class="w-6 h-6 rounded-lg bg-[#F8F8F7] hover:bg-stone-200 text-black font-bold">+</button>
             </div>
           </div>
         `).join('');
@@ -832,27 +1537,180 @@
       document.getElementById("total-val").textContent = `$${total.toFixed(2)}`;
     }
 
-    function updateTaxRate(val) {
-      const pct = parseFloat(val) || 0;
-      currentTaxRate = pct / 100;
-      document.getElementById("tax-label").textContent = `Tax (${pct}%)`;
-      updateCartUI();
+    function initiateCheckout() {
+      if (cart.length === 0) return alert("Cart is empty!");
+      document.getElementById("checkout-modal-amount").textContent = document.getElementById("total-val").textContent;
+      document.getElementById("checkout-modal").classList.remove("hidden");
     }
 
-    // ---------------- ITEM ADD / EDIT MODAL ----------------
-    function openItemModal() {
+    function closeCheckoutModal() {
+      document.getElementById("checkout-modal").classList.add("hidden");
+    }
+
+    function finalizePaymentAndPrint() {
+      alert("Payment settled! Receipt sent to terminal printer.");
+      closeCheckoutModal();
+      clearCart();
+    }
+
+    // ---------------- BILLS VIEW (SCREEN 2 LOGIC) ----------------
+    const SAMPLE_ORDERS = {
+      35: { title: "Order #35", badge: "Active", table: "2B", guests: "2", customer: "Kate Woods", payment: "By Cash", total: "$14.71" },
+      36: { title: "Order #36", badge: "Active", table: "1B", guests: "3", customer: "Liam Smith", payment: "By Card", total: "$56.00" },
+      37: { title: "Order #37", badge: "Done", table: "4C", guests: "1", customer: "Anna Bell", payment: "By Cash", total: "$15.00" },
+      38: { title: "Order #38", badge: "Active", table: "3B", guests: "2", customer: "Tom Davis", payment: "By Card", total: "$23.00" },
+      39: { title: "Order #39", badge: "Done", table: "1C", guests: "1", customer: "Chris Evans", payment: "By Cash", total: "$10.00" }
+    };
+
+    function selectOrderInspection(id) {
+      const ord = SAMPLE_ORDERS[id];
+      if (!ord) return;
+
+      document.getElementById("inspect-order-title").textContent = ord.title;
+      const badge = document.getElementById("inspect-order-badge");
+      badge.textContent = ord.badge;
+      badge.className = ord.badge === "Done" ? "px-3 py-1 bg-emerald-100 text-emerald-800 font-extrabold text-xs rounded-full" : "px-3 py-1 bg-[#FFCA40] text-black font-extrabold text-xs rounded-full";
+
+      document.getElementById("inspect-table").textContent = ord.table;
+      document.getElementById("inspect-guests").textContent = ord.guests;
+      document.getElementById("inspect-customer").textContent = ord.customer;
+      document.getElementById("inspect-payment").textContent = ord.payment;
+      document.getElementById("inspect-total").textContent = ord.total;
+      document.getElementById("btn-charge-customer").textContent = `Charge customer ${ord.total}`;
+
+      // Highlight card
+      [35, 36, 37, 38, 39].forEach(num => {
+        const c = document.getElementById(`billcard-${num}`);
+        if (c) c.className = num === id ? "p-3.5 bg-[#F8F8F7] rounded-2xl cursor-pointer border-2 border-[#FFCA40] transition" : "p-3.5 hover:bg-[#F8F8F7] rounded-2xl cursor-pointer border border-[#808080]/15 transition";
+      });
+    }
+
+    function chargeInspectedCustomer() {
+      const order = document.getElementById("inspect-order-title").textContent;
+      const total = document.getElementById("inspect-total").textContent;
+      alert(`Customer for ${order} successfully charged ${total} via cash terminal.`);
+    }
+
+    function seedDemoBill() {
+      alert("New table order added to Bills queue!");
+    }
+
+    // ---------------- MESSAGES VIEW (SCREEN 3 LOGIC) ----------------
+    function sendLiveChatMessage() {
+      const input = document.getElementById("live-chat-input");
+      const text = input.value.trim();
+      if (!text) return;
+
+      const container = document.getElementById("chat-messages-container");
+      const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      
+      const newBubble = `
+        <div class="flex flex-col items-end max-w-lg ml-auto">
+          <div class="bg-[#FFCA40]/40 text-black p-4 rounded-3xl rounded-tr-none font-medium">
+            ${text}
+          </div>
+          <div class="flex items-center gap-1 mt-1 text-[10px] text-[#808080]">
+            <span>${now}</span>
+            <i data-lucide="check" class="w-3.5 h-3.5 text-black"></i>
+          </div>
+        </div>
+      `;
+      container.innerHTML += newBubble;
+      input.value = "";
+      container.scrollTop = container.scrollHeight;
+      lucide.createIcons();
+    }
+
+    // ---------------- NAVIGATION & SETTINGS ROUTER ----------------
+    function switchTab(tabId) {
+      ['catalog', 'dashboard', 'messages', 'bills', 'settings'].forEach(t => {
+        document.getElementById(`view-${t}`).classList.add('hidden');
+        const nav = document.getElementById(`nav-${t}`);
+        if (nav) nav.className = "nav-item w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition text-[#808080] hover:bg-[#F8F8F7]";
+      });
+
+      document.getElementById(`view-${tabId}`).classList.remove('hidden');
+      const activeNav = document.getElementById(`nav-${tabId}`);
+      if (activeNav) activeNav.className = "nav-item w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition bg-[#FFCA40] text-black shadow-sm";
+      
+      const breadcrumb = document.getElementById("breadcrumb-text");
+      const backBtn = document.getElementById("btn-back-breadcrumb");
+
+      if (tabId === 'settings') {
+        backBtn.classList.remove("hidden");
+        updateSettingsBreadcrumb("Notifications");
+        switchSettingsSection('notifications');
+      } else if (tabId === 'bills') {
+        backBtn.classList.remove("hidden");
+        breadcrumb.innerHTML = `<span class="text-[#808080]">Bills</span> &gt; <span class="font-bold text-black">Order #35</span>`;
+      } else if (tabId === 'messages') {
+        backBtn.classList.remove("hidden");
+        breadcrumb.innerHTML = `<span class="text-[#808080]">Messages</span> &gt; <span class="font-bold text-black">Waiter's Team chat</span>`;
+      } else {
+        backBtn.classList.add("hidden");
+        breadcrumb.innerHTML = `<span>Food & Drinks</span>`;
+      }
+      lucide.createIcons();
+    }
+
+    function switchSettingsSection(sectionId) {
+      document.querySelectorAll('.subsetting-pane').forEach(el => el.classList.add('hidden'));
+
+      document.querySelectorAll('.setnav-btn').forEach(btn => {
+        btn.className = "setnav-btn w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold text-[#808080] hover:bg-[#F8F8F7] transition group";
+        const bar = btn.querySelector('.indicator-bar');
+        if (bar) bar.className = "indicator-bar w-1 h-5 bg-[#FFCA40] rounded-full hidden";
+        const icon = btn.querySelector('i');
+        if (icon) icon.className = "w-4 h-4 text-[#808080] group-hover:text-black";
+      });
+
+      const target = document.getElementById(`subsetting-${sectionId}`);
+      if (target) target.classList.remove('hidden');
+
+      const activeBtn = document.getElementById(`setnav-${sectionId}`);
+      if (activeBtn) {
+        activeBtn.className = "setnav-btn w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold text-black bg-[#F8F8F7] shadow-sm transition group";
+        const bar = activeBtn.querySelector('.indicator-bar');
+        if (bar) bar.className = "indicator-bar w-1 h-5 bg-[#FFCA40] rounded-full block";
+        const icon = activeBtn.querySelector('i');
+        if (icon) icon.className = "w-4 h-4 text-black";
+      }
+
+      const names = {
+        profile: "Profile",
+        notifications: "Notifications",
+        appearance: "Appearance",
+        checkout: "Checkout settings",
+        security: "Security",
+        language: "Language & Region"
+      };
+      updateSettingsBreadcrumb(names[sectionId]);
+      lucide.createIcons();
+    }
+
+    function updateSettingsBreadcrumb(subName) {
+      const breadcrumb = document.getElementById("breadcrumb-text");
+      breadcrumb.innerHTML = `
+        <span class="text-[#808080]">Settings</span>
+        <span class="text-[#808080]">&gt;</span>
+        <span class="font-bold text-black">${subName}</span>
+      `;
+    }
+
+    // ---------------- MENU MANAGEMENT ----------------
+    function openMenuManagementModal() {
       populateItemSelectOptions();
       document.getElementById("edit-item-select").value = "NEW";
       populateEditItemForm("NEW");
       document.getElementById("item-modal").classList.remove("hidden");
     }
 
-    function closeItemModal() {
+    function closeMenuManagementModal() {
       document.getElementById("item-modal").classList.add("hidden");
     }
 
-    function editSpecificItem(id) {
-      openItemModal();
+    function editSpecificMenuItem(id) {
+      openMenuManagementModal();
       document.getElementById("edit-item-select").value = id;
       populateEditItemForm(id);
     }
@@ -892,7 +1750,6 @@
       const icon = document.getElementById("edit-item-icon").value.trim() || "🍽️";
 
       if (id) {
-        // Update existing
         const item = MENU_ITEMS.find(i => i.id == id);
         if (item) {
           item.name = name;
@@ -901,140 +1758,26 @@
           item.icon = icon;
         }
       } else {
-        // Add new
-        const newId = Date.now();
-        MENU_ITEMS.push({ id: newId, name, category, price, icon });
+        MENU_ITEMS.push({ id: Date.now(), name, category, price, icon });
       }
 
-      localStorage.setItem('pos_menu_items', JSON.stringify(MENU_ITEMS));
+      localStorage.setItem('pos_artisan_menu', JSON.stringify(MENU_ITEMS));
       renderCatalog();
-      closeItemModal();
+      closeMenuManagementModal();
     }
 
     function deleteMenuItem() {
       const id = document.getElementById("edit-item-id").value;
       if (!id) return;
-      if (confirm("Are you sure you want to delete this menu item?")) {
+      if (confirm("Delete this menu item?")) {
         MENU_ITEMS = MENU_ITEMS.filter(i => i.id != id);
-        localStorage.setItem('pos_menu_items', JSON.stringify(MENU_ITEMS));
+        localStorage.setItem('pos_artisan_menu', JSON.stringify(MENU_ITEMS));
         renderCatalog();
-        closeItemModal();
+        closeMenuManagementModal();
       }
     }
 
-    // ---------------- CHECKOUT & BILLS ----------------
-    function openCheckoutModal() {
-      if (cart.length === 0) return alert("Cart is empty!");
-      const total = document.getElementById("total-val").textContent;
-      const table = document.getElementById("table-select").value;
-      const billId = `#POS-${Math.floor(1000 + Math.random() * 9000)}`;
-      
-      const tbody = document.getElementById("bills-tbody");
-      const itemsSummary = cart.map(c => `${c.qty}x ${c.name}`).join(', ');
-      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-      const newRow = `
-        <tr>
-          <td class="py-3 px-3 font-mono font-bold text-amber-600">${billId}</td>
-          <td class="py-3 px-3">${table}</td>
-          <td class="py-3 px-3">${timeStr}</td>
-          <td class="py-3 px-3 max-w-[200px] truncate" title="${itemsSummary}">${itemsSummary}</td>
-          <td class="py-3 px-3 font-bold text-stone-900">${total}</td>
-          <td class="py-3 px-3">
-            <button onclick="alert('Reprinting bill ${billId}')" class="text-amber-600 hover:underline font-semibold">Reprint</button>
-          </td>
-        </tr>
-      `;
-      tbody.innerHTML = newRow + tbody.innerHTML;
-
-      alert(`Payment finalized for ${total} (${table})!\nReceipt ${billId} printed.`);
-      clearCart();
-    }
-
-    function seedDemoBill() {
-      const billId = `#POS-${Math.floor(1000 + Math.random() * 9000)}`;
-      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const tbody = document.getElementById("bills-tbody");
-      tbody.innerHTML = `
-        <tr>
-          <td class="py-3 px-3 font-mono font-bold text-amber-600">${billId}</td>
-          <td class="py-3 px-3">Table 4</td>
-          <td class="py-3 px-3">${timeStr}</td>
-          <td class="py-3 px-3">2x Cold Brew, 1x Margherita</td>
-          <td class="py-3 px-3 font-bold text-stone-900">$21.45</td>
-          <td class="py-3 px-3">
-            <button onclick="alert('Reprinting bill ${billId}')" class="text-amber-600 hover:underline font-semibold">Reprint</button>
-          </td>
-        </tr>
-      ` + tbody.innerHTML;
-    }
-
-    // ---------------- SHIFT MESSAGES ----------------
-    function sendStaffMessage() {
-      const input = document.getElementById("message-input");
-      const text = input.value.trim();
-      if (!text) return;
-
-      const list = document.getElementById("messages-list");
-      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const msgHtml = `
-        <div class="p-3 bg-amber-50/60 rounded-xl border border-amber-200/80">
-          <div class="flex justify-between font-bold text-amber-950 mb-1">
-            <span>You (Active Barista)</span>
-            <span class="text-[10px] font-normal text-stone-400">${timeStr}</span>
-          </div>
-          <p class="text-stone-700">${text}</p>
-        </div>
-      `;
-      list.innerHTML += msgHtml;
-      input.value = "";
-      list.scrollTop = list.scrollHeight;
-    }
-
-    // ---------------- NAVIGATION TABS ----------------
-    function switchTab(tabId) {
-      ['catalog', 'dashboard', 'messages', 'bills', 'settings'].forEach(t => {
-        document.getElementById(`view-${t}`).classList.add('hidden');
-        const nav = document.getElementById(`nav-${t}`);
-        nav.className = "nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition text-stone-600 hover:bg-stone-50";
-      });
-
-      document.getElementById(`view-${tabId}`).classList.remove('hidden');
-      const activeNav = document.getElementById(`nav-${tabId}`);
-      activeNav.className = "nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition bg-amber-600 text-white shadow-sm shadow-amber-600/20";
-      
-      const titleMap = {
-        catalog: "Food & Drinks",
-        dashboard: "Dashboard Overview",
-        messages: "Shift Messages",
-        bills: "Bills & Records",
-        settings: "Settings"
-      };
-      document.getElementById("page-header-title").textContent = titleMap[tabId];
-      lucide.createIcons();
-    }
-
-    // ---------------- SETTINGS SUBMODULE NAVIGATION ----------------
-    function switchSettingsSection(sectionId) {
-      ['profile', 'notifications', 'appearance', 'checkout', 'security', 'language'].forEach(s => {
-        document.getElementById(`subsetting-${s}`).classList.add('hidden');
-        const btn = document.getElementById(`setnav-${s}`);
-        btn.className = "setnav-btn w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs text-stone-600 hover:bg-stone-50 transition";
-      });
-
-      document.getElementById(`subsetting-${sectionId}`).classList.remove('hidden');
-      const activeBtn = document.getElementById(`setnav-${sectionId}`);
-      activeBtn.className = "setnav-btn w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs bg-amber-600 text-white transition";
-      lucide.createIcons();
-    }
-
-    // Live Clock
-    setInterval(() => {
-      const now = new Date();
-      document.getElementById("current-clock").textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }, 1000);
-
-    // Initial Boots
+    // Initial load
     renderCatalog();
     lucide.createIcons();
   </script>
