@@ -153,13 +153,27 @@ label.lab,div.lab{display:block;font-size:.75rem;color:var(--gray);font-weight:6
 .item:hover{border-color:var(--yellow);box-shadow:var(--shadow)}
 .item.sold{opacity:.55}
 .emo-lg{flex:1;min-height:4rem;border-radius:1.1rem;display:grid;place-items:center;font-size:3.2rem}
+.thumb{position:relative;flex:1;min-height:4rem;border-radius:1.1rem;display:grid;place-items:center;overflow:hidden}
+.thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.thumb .thumb-ic{position:relative;color:rgba(0,0,0,.32);display:flex}
+[data-theme="dark"] .thumb .thumb-ic{color:rgba(255,255,255,.35)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .thumb .thumb-ic{color:rgba(255,255,255,.35)}}
+.thumb-sm{position:relative;width:2.2rem;height:2.2rem;border-radius:.7rem;display:grid;place-items:center;overflow:hidden;flex:none}
+.thumb-sm img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.thumb-sm .thumb-ic{position:relative;color:rgba(0,0,0,.32);display:flex}
+[data-theme="dark"] .thumb-sm .thumb-ic{color:rgba(255,255,255,.35)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .thumb-sm .thumb-ic{color:rgba(255,255,255,.35)}}
+.oi .thumb-sm,.rank .thumb-sm{width:2.6rem;height:2.6rem;border-radius:.8rem}
+.pic-pick{display:flex;gap:1rem;align-items:center;flex-wrap:wrap}
+.pic-pick .thumb{flex:none;width:6rem;height:6rem;border:1px solid var(--line)}
+.pic-pick .btns{display:flex;flex-direction:column;gap:.5rem;align-items:flex-start}
 .i-info b{display:block}
 .i-foot{display:flex;justify-content:space-between;align-items:center}
 .price{font-size:1rem}
 .plus{width:2rem;height:2rem;border-radius:.7rem;background:var(--yellow);color:#000;display:grid;place-items:center}
-.item .edit{position:absolute;top:1.2rem;right:1.2rem;opacity:0;background:var(--card)}
+.item .edit{position:absolute;top:1.2rem;right:1.2rem;opacity:0;background:var(--card);z-index:2}
 .item:hover .edit,.item .edit:focus-visible{opacity:1}
-.incart{position:absolute;top:1.2rem;left:1.2rem;background:var(--ink);color:var(--card);border-radius:1rem;min-width:1.5rem;height:1.5rem;display:grid;place-items:center;font-size:.75rem;font-weight:800;padding:0 .4rem}
+.incart{position:absolute;top:1.2rem;left:1.2rem;background:var(--ink);color:var(--card);border-radius:1rem;min-width:1.5rem;height:1.5rem;display:grid;place-items:center;font-size:.75rem;font-weight:800;padding:0 .4rem;z-index:2}
 .cart{width:21rem;flex:none;border-left:1px solid var(--line);display:flex;flex-direction:column;padding:1rem 1.2rem;background:var(--card);min-height:0}
 .cart-head{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.8rem}
 .cart-head h3{font-size:1rem;font-weight:800}
@@ -453,8 +467,9 @@ const DB={menu:[],bills:[]};
 const num=v=>v==null?null:+v;
 const billFromRow=r=>({id:r.id,table:r.table_no,guests:r.guests,customer:r.customer,method:r.method,status:r.status,items:r.items||[],discount:+r.discount,taxRate:+r.tax_rate,subtotal:+r.subtotal,discountAmt:+r.discount_amt,tax:+r.tax,total:+r.total,tendered:num(r.tendered),change:num(r.change_due),by:r.by_name,createdAt:new Date(r.created_at).getTime(),paidAt:r.paid_at?new Date(r.paid_at).getTime():null});
 const billToRow=b=>({table_no:b.table,guests:b.guests,customer:b.customer,method:b.method,status:b.status,items:b.items,discount:b.discount,tax_rate:b.taxRate,subtotal:b.subtotal,discount_amt:b.discountAmt,tax:b.tax,total:b.total});
-const menuFromRow=r=>({id:r.id,name:r.name,cat:r.category,price:+r.price,emoji:r.emoji,sold:!!r.sold_out});
-const menuToRow=m=>({name:m.name,category:m.cat,price:m.price,emoji:m.emoji,sold_out:m.sold});
+const menuFromRow=r=>({id:r.id,name:r.name,cat:r.category,price:+r.price,image:r.image_url||'',sold:!!r.sold_out});
+const menuToRow=m=>({name:m.name,category:m.cat,price:m.price,image_url:m.image||null,sold_out:m.sold});
+const thumb=(m,cls)=>'<div class="'+(cls||'thumb')+'" style="background:'+tint(m.cat)+'">'+(m.image?'<img src="'+esc(m.image)+'" alt="" loading="lazy" onerror="this.remove()">':'')+'<span class="thumb-ic">'+ico('bag',cls==='thumb'?28:16)+'</span></div>';
 const dbErr=(e,msg)=>{console.error(e);toast(msg||(e&&e.message)||'Something went wrong','warn')};
 
 /* ===================== i18n + regions ===================== */
@@ -653,6 +668,7 @@ async function startSession(au,fresh){
   timers.push(setInterval(()=>{updateMe();checkBillingAlerts()},30000));
   timers.push(setInterval(refreshShared,60000));
   checkBillingAlerts();
+  askNotificationPermission();
 }
 async function logout(){
   loggingOut=true;
@@ -673,12 +689,26 @@ async function saveProfile(patch){
 
 /* ===================== notifications ===================== */
 const NMAP={message:'messages',order:'orders',payment:'payment',billing:'billing'};
+function browserNotify(title,body){
+  if(typeof Notification==='undefined'||Notification.permission!=='granted') return;
+  if(!document.hidden) return;
+  try{
+    const n=new Notification(title,{body});
+    n.onclick=()=>{try{window.focus()}catch(e){}n.close()};
+  }catch(e){}
+}
+function askNotificationPermission(){
+  if(typeof Notification==='undefined'||Notification.permission!=='default') return;
+  try{Notification.requestPermission()}catch(e){}
+}
 function notify(type,title,text,link){
   if(!UD.settings.notif[NMAP[type]]) return false;
   UD.notifs.unshift({id:uid(),type,title,text,ts:Date.now(),read:false,link:link||''});
   UD.notifs=UD.notifs.slice(0,60);saveUD('notifs');badge();
   if(currentView==='notifications') VIEWS.notifications.draw();
-  toast(title+': '+text,'ok',link);return true;
+  toast(title+': '+text,'ok',link);
+  browserNotify(title,text);
+  return true;
 }
 function badge(){
   const n=(UD.notifs||[]).filter(x=>!x.read).length;
@@ -895,7 +925,7 @@ VIEWS.dashboard={
     cur.done.forEach(b=>{
       pay[b.method==='card'?'card':'cash']+=b.total;
       b.items.forEach(i=>{
-        const k=i.name;items[k]=items[k]||{name:i.name,emoji:i.emoji,qty:0,rev:0};items[k].qty+=i.qty;items[k].rev+=i.price*i.qty;
+        const k=i.name;items[k]=items[k]||{name:i.name,image:i.image,cat:i.cat,qty:0,rev:0};items[k].qty+=i.qty;items[k].rev+=i.price*i.qty;
         cats[i.cat]=(cats[i.cat]||0)+i.price*i.qty;
       });
     });
@@ -910,7 +940,7 @@ VIEWS.dashboard={
      '<div class="card kpi"><small>'+ico('clock',16)+' Open orders</small><b>'+active.length+'</b><small>'+(active.length?'<a class="link" href="#/bills">View bills</a>':'All caught up')+'</small></div>'+
      '<div class="card kpi"><small>'+ico('users',16)+' Average order</small><b>'+money(cur.avg)+'</b><small>per paid order</small></div></div>'+
     '<div class="dgrid"><div class="card"><h3>'+(wk?'Sales by day':'Sales by hour')+'</h3><div class="bars" role="img" aria-label="Sales chart">'+buckets.map(b=>'<div class="bar '+(b.v===max&&b.v>0?'max':'')+'" title="'+esc(b.l+': '+money(b.v))+'"><i style="height:'+Math.max(2,b.v/max*100*.82)+'%"></i><small>'+esc(b.l)+'</small></div>').join('')+'</div></div>'+
-     '<div class="card"><h3>Top items</h3>'+(top.length?top.map(i=>'<div class="rank"><span class="emo">'+esc(i.emoji)+'</span><div class="rk"><b>'+esc(i.name)+'</b><small>'+i.qty+' sold · '+money(i.rev)+'</small><div class="meter"><i style="width:'+i.qty/topMax*100+'%"></i></div></div></div>').join(''):'<p class="empty sm">No paid orders in this period yet.</p>')+'</div></div>'+
+     '<div class="card"><h3>Top items</h3>'+(top.length?top.map(i=>'<div class="rank">'+thumb(i,'thumb-sm')+'<div class="rk"><b>'+esc(i.name)+'</b><small>'+i.qty+' sold · '+money(i.rev)+'</small><div class="meter"><i style="width:'+i.qty/topMax*100+'%"></i></div></div></div>').join(''):'<p class="empty sm">No paid orders in this period yet.</p>')+'</div></div>'+
     '<div class="dgrid b"><div class="card"><h3>Sales by category</h3>'+(catRows.length?catRows.map(c=>'<div class="rank"><div class="rk"><b>'+esc(c[0])+' <small>'+Math.round(c[1]/catTot*100)+'%</small></b><div class="meter"><i style="width:'+c[1]/catTot*100+'%"></i></div></div><b>'+money(c[1])+'</b></div>').join(''):'<p class="empty sm">Nothing sold yet.</p>')+'</div>'+
      '<div class="card"><h3>Payment methods</h3>'+['cash','card'].map(k=>'<div class="rank"><span class="emo">'+ico(k==='card'?'card':'cash',18)+'</span><div class="rk"><b>'+(k==='card'?'Bank card':'Cash')+' <small>'+Math.round(pay[k]/payTot*100)+'%</small></b><div class="meter '+(k==='card'?'red':'')+'"><i style="width:'+pay[k]/payTot*100+'%"></i></div></div><b>'+money(pay[k])+'</b></div>').join('')+'</div></div>'+
     '<div class="card"><h3>Recent orders</h3>'+recent.map(b=>'<a class="orow" href="#/bills/'+b.id+'"><span><b>Order #'+b.id+'</b><small>Table '+esc(b.table)+' · '+esc(b.customer)+' · '+fmtTime(b.createdAt)+'</small></span><span style="align-items:flex-end"><b>'+money(b.total)+'</b><span class="pill-s '+b.status+'">'+esc(t(b.status))+'</span></span></a>').join('')+'</div>';
@@ -932,7 +962,7 @@ function drawItems(){
    '<div class="item '+(m.sold?'sold':'')+'" role="button" tabindex="0" data-act="add" data-id="'+m.id+'" aria-label="Add '+esc(m.name)+'">'+
    (ME.role==='Manager'?'<button class="edit iconbtn sm" data-act="item-edit" data-id="'+m.id+'" aria-label="Edit '+esc(m.name)+'">'+ico('edit',14)+'</button>':'')+
    (inCart(m.id)?'<span class="incart">'+inCart(m.id)+'</span>':'')+
-   '<div class="emo-lg" style="background:'+tint(m.cat)+'"><span>'+esc(m.emoji)+'</span></div>'+
+   thumb(m)+
    '<div class="i-info"><b>'+esc(m.name)+'</b><small>'+esc(m.cat)+'</small></div>'+
    '<div class="i-foot"><b class="price">'+money(m.price)+'</b>'+(m.sold?'<span class="tag">Sold out</span>':'<span class="plus">'+ico('plus',16)+'</span>')+'</div></div>').join(''):'<p class="empty" style="grid-column:1/-1">No items match your search.</p>';
 }
@@ -951,7 +981,7 @@ function syncCart(){
 function drawCart(){
   const box=$('#cart-lines');if(!box) return;
   box.innerHTML=CART.items.length?CART.items.map(i=>
-   '<div class="line"><span class="emo">'+esc(i.emoji)+'</span><div class="l-main"><b>'+esc(i.name)+'</b><span class="price-s">'+money(i.price)+'</span>'+(i.note?'<em>'+esc(i.note)+'</em>':'')+'</div>'+
+   '<div class="line">'+thumb(i,'thumb-sm')+'<div class="l-main"><b>'+esc(i.name)+'</b><span class="price-s">'+money(i.price)+'</span>'+(i.note?'<em>'+esc(i.note)+'</em>':'')+'</div>'+
    '<div class="stepper"><button data-act="qty" data-id="'+i.id+'" data-d="-1" aria-label="Decrease '+esc(i.name)+'">−</button><b>'+i.qty+'</b><button data-act="qty" data-id="'+i.id+'" data-d="1" aria-label="Increase '+esc(i.name)+'">+</button></div>'+
    '<button class="iconbtn sm plain" data-act="note" data-id="'+i.id+'" aria-label="Note for '+esc(i.name)+'">'+ico('edit',14)+'</button></div>').join(''):
    '<div class="empty-cart">'+ico('bag',28)+'<p>Cart is empty.<br>Tap any item to add it.</p></div>';
@@ -992,7 +1022,7 @@ ACT.add=el=>{
   const m=DB.menu.find(x=>x.id===+el.dataset.id);if(!m) return;
   if(m.sold) return toast('That item is sold out','warn');
   const l=CART.items.find(i=>i.id===m.id);
-  if(l) l.qty++; else CART.items.push({id:m.id,name:m.name,emoji:m.emoji,cat:m.cat,price:m.price,qty:1,note:''});
+  if(l) l.qty++; else CART.items.push({id:m.id,name:m.name,image:m.image,cat:m.cat,price:m.price,qty:1,note:''});
   cartChanged();
 };
 ACT.qty=el=>{
@@ -1041,20 +1071,51 @@ async function submitCart(charge){
   }catch(e){dbErr(e,'Couldn’t save the order. Check your connection and try again.')}
   finally{busy=false}
 }
+function pickerHTML(img){
+  return thumb({cat:'', image:img},'thumb')+'<div class="btns"><label class="btn ghost sm pick">Upload photo<input type="file" accept="image/*" id="item-photo-input" hidden></label><button type="button" class="btn ghost sm" id="pic-clear" '+(img?'':'hidden')+'>Remove photo</button></div>';
+}
 function itemModal(id){
-  const m=id?DB.menu.find(x=>x.id===id):{name:'',cat:'Cold Drinks',price:'',emoji:'🍽️',sold:false};
+  const m=id?DB.menu.find(x=>x.id===id):{name:'',cat:'Cold Drinks',price:'',image:'',sold:false};
+  let img=m.image||'';
   const md=openModal('<h3 class="dh">'+(id?'Edit item':'New menu item')+'</h3><form class="stack">'+
    '<label class="lab">Name<input class="field" name="name" value="'+esc(m.name)+'" required maxlength="40"></label>'+
    '<div class="two"><label class="lab">Category<select class="field" name="cat">'+CATS.map(c=>'<option '+(c===m.cat?'selected':'')+'>'+c+'</option>').join('')+'</select></label>'+
    '<label class="lab">Price ($)<input class="field" name="price" type="number" min="0" step="0.01" value="'+m.price+'" required></label></div>'+
-   '<label class="lab">Emoji<input class="field" name="emoji" value="'+esc(m.emoji)+'" maxlength="4"></label>'+
+   '<div><span class="lab" style="display:block;margin-bottom:.4rem">Photo</span><div class="pic-pick" id="pic-pick">'+pickerHTML(img)+'</div>'+
+   '<input class="field" id="pic-url" style="margin-top:.6rem" placeholder="'+(img.indexOf('data:')===0?'Photo uploaded — paste a link to replace it':'or paste an image link (https://...)')+'" value="'+(img.indexOf('data:')===0?'':esc(img))+'"></div>'+
    '<label class="row" style="border:0;padding:.2rem 0"><span>Sold out</span><span class="sw"><input type="checkbox" name="sold" '+(m.sold?'checked':'')+'><i></i></span></label>'+
    '<div class="dfoot">'+(id?'<button type="button" class="btn danger" data-act="item-del" data-id="'+id+'">Delete</button>':'')+'<button type="button" class="btn ghost" data-act="close-modal">Cancel</button><button class="btn primary">Save</button></div></form>');
+  const refreshPic=()=>{$('#pic-pick',md).innerHTML=pickerHTML(img)};
+  md.addEventListener('input',e=>{if(e.target.id==='pic-url'){img=e.target.value.trim();refreshPic()}});
+  md.addEventListener('change',e=>{
+    if(e.target.id!=='item-photo-input') return;
+    const f=e.target.files[0];if(!f) return;
+    if(!/^image\//.test(f.type)) return toast('Choose an image file','warn');
+    const rd=new FileReader();
+    rd.onload=()=>{
+      const im=new Image();
+      im.onload=()=>{
+        const S=480,c=document.createElement('canvas');c.width=S;c.height=S;
+        const mn=Math.min(im.width,im.height);
+        c.getContext('2d').drawImage(im,(im.width-mn)/2,(im.height-mn)/2,mn,mn,0,0,S,S);
+        img=c.toDataURL('image/jpeg',.82);
+        const u=$('#pic-url',md);u.value='';u.placeholder='Photo uploaded — paste a link to replace it';
+        refreshPic();
+      };
+      im.onerror=()=>toast('That image couldn’t be read','warn');
+      im.src=rd.result;
+    };
+    rd.readAsDataURL(f);
+  });
+  md.addEventListener('click',e=>{
+    if(e.target.id!=='pic-clear') return;
+    img='';const u=$('#pic-url',md);u.value='';u.placeholder='or paste an image link (https://...)';refreshPic();
+  });
   $('form',md).onsubmit=async e=>{
     e.preventDefault();const f=e.target.elements;
     const name=f.name.value.trim(),price=parseFloat(f.price.value);
     if(!name||!(price>=0)) return toast('Enter a name and a valid price','warn');
-    const data={name,cat:f.cat.value,price:r2(price),emoji:f.emoji.value.trim()||'🍽️',sold:f.sold.checked};
+    const data={name,cat:f.cat.value,price:r2(price),image:img,sold:f.sold.checked};
     try{
       const q=id?sb.from('menu_items').update(menuToRow(data)).eq('id',id):sb.from('menu_items').insert(menuToRow(data));
       const r=await q.select().maybeSingle();
@@ -1173,7 +1234,7 @@ function drawBillDetail(){
   else actions='<p class="muted">This order was cancelled.</p>';
   el.innerHTML=top+'<div class="bd-head"><h2 style="margin:0">Order #'+b.id+'</h2><span class="badge '+b.status+'">'+esc(t(b.status))+'</span></div>'+
    '<h4 style="margin-top:0">Details</h4><div class="kv4"><div><small>'+esc(t('table'))+'</small><b>'+esc(b.table)+'</b></div><div><small>'+esc(t('guests'))+'</small><b>'+b.guests+'</b></div><div><small>'+esc(t('customer'))+'</small><b>'+esc(b.customer)+'</b></div><div><small>'+esc(t('payment'))+'</small><b>By '+(b.method==='card'?'Card':'Cash')+'</b></div></div>'+
-   '<h4>Order info</h4>'+b.items.map(i=>'<div class="oi"><span class="emo" style="background:'+tint(i.cat)+'">'+esc(i.emoji)+'</span><span class="n">'+i.qty+'× '+esc(i.name)+(i.note?'<br><small>'+esc(i.note)+'</small>':'')+'</span><b>'+money(i.price*i.qty)+'</b></div>').join('')+
+   '<h4>Order info</h4>'+b.items.map(i=>'<div class="oi">'+thumb(i,'thumb-sm')+'<span class="n">'+i.qty+'× '+esc(i.name)+(i.note?'<br><small>'+esc(i.note)+'</small>':'')+'</span><b>'+money(i.price*i.qty)+'</b></div>').join('')+
    '<div style="padding-top:.8rem"><div class="tl"><span>'+esc(t('subtotal'))+'</span><b>'+money(b.subtotal)+'</b></div>'+(b.discountAmt?'<div class="tl"><span>Discount ('+b.discount+'%)</span><b>−'+money(b.discountAmt)+'</b></div>':'')+(b.taxRate?'<div class="tl"><span>'+esc(t('tax'))+' ('+b.taxRate+'%)</span><b>'+money(b.tax)+'</b></div>':'')+'<div class="tl grand"><span>'+esc(t('total'))+'</span><b>'+money(b.total)+'</b></div></div>'+
    '<div class="bd-actions">'+actions+'</div>';
 }
@@ -1395,7 +1456,14 @@ const SEC={
  },
  notifications(){
   const rows=[['messages','New messages'],['orders','New orders from other terminals'],['payment','Payment success'],['billing','Billing alert (order open 45+ minutes)']];
+  const perm=typeof Notification==='undefined'?null:Notification.permission;
+  const permRow=perm===null?'':perm==='granted'?
+    '<div class="row"><div><b>Desktop alerts</b><p>Allowed — you’ll get a system notification when this tab is in the background.</p></div><span class="tag ok">On</span></div>':
+    perm==='denied'?
+    '<div class="row"><div><b>Desktop alerts</b><p>Blocked by the browser. Allow notifications for this site in your browser’s settings to turn them back on.</p></div></div>':
+    '<div class="row"><div><b>Desktop alerts</b><p>Get a system notification when this tab is in the background.</p></div><button class="btn ghost sm" data-act="ask-notif">Turn on</button></div>';
   return '<h2>Notifications</h2><p class="muted">Choose which alerts appear in the app on this device.</p>'+
+  permRow+
   '<div class="nhead one"><span>Notification</span><span>Push</span></div>'+
   rows.map(r=>'<div class="nrow one"><span>'+r[1]+'</span>'+sw('notif.'+r[0],r[1])+'</div>').join('')+saveBtn;
  },
