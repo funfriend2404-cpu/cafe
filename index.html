@@ -497,10 +497,23 @@ const ui={cat:'All',foodQ:'',billFilter:'all',billDate:'',billQ:'',sel:null,chat
 let STAFF=[],MSGS={},LASTREAD=null,rtChan=null,loggingOut=false,busy=false;
 const root=$('#root');
 const VIEWS={},ACT={},INPUT={},CHANGE={},FORMS={};
-const CATS=['Cold Drinks','Burgers','Pizza','Wok','Desserts','Pasta'];
+const SUGGESTED_CATS=['Cold Drinks','Hot Drinks','Burgers','Pizza','Wok','Desserts','Pasta','Salads','Appetizers'];
 const TABLES=['1A','1B','1C','2A','2B','2C','3A','3B','3C','4A','4B','4C','Takeaway'];
-const TINT={'Cold Drinks':'96,165,250','Burgers':'251,146,60','Pizza':'239,68,68','Wok':'168,85,247','Desserts':'236,72,153','Pasta':'234,179,8'};
-const tint=c=>'rgba('+(TINT[c]||'128,128,128')+',.16)';
+// Categories are no longer a fixed list: they're whatever text is on your menu items,
+// so managers can rename, merge or invent new categories just by editing an item.
+function usedCats(){
+  const set=new Set();
+  DB.menu.forEach(m=>{if(m.cat) set.add(m.cat)});
+  return Array.from(set).sort((a,b)=>a.localeCompare(b));
+}
+function catSuggestions(){
+  const set=new Set(SUGGESTED_CATS);
+  usedCats().forEach(c=>set.add(c));
+  return Array.from(set);
+}
+const CAT_PALETTE=['96,165,250','251,146,60','239,68,68','168,85,247','236,72,153','234,179,8','34,197,94','20,184,166','244,63,94','132,204,22'];
+function catHash(c){let h=0;const s=String(c||'');for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return h}
+const tint=c=>c?'rgba('+CAT_PALETTE[catHash(c)%CAT_PALETTE.length]+',.16)':'rgba(128,128,128,.16)';
 const lang=()=>(UD.settings&&UD.settings.lang)||'en';
 const t=k=>(T[lang()]&&T[lang()][k])||T.en[k]||k;
 const R=()=>REGIONS[(UD.settings||{}).region]||REGIONS['us-ny'];
@@ -1008,7 +1021,7 @@ ACT.range=el=>{ui.dashRange=el.dataset.r;VIEWS.dashboard.draw()};
 const cartCount=()=>CART.items.reduce((s,i)=>s+i.qty,0);
 function drawPills(){
   const cnt=c=>c==='All'?DB.menu.length:DB.menu.filter(m=>m.cat===c).length;
-  $('#pills').innerHTML=['All'].concat(CATS).map(c=>'<button class="pill '+(ui.cat===c?'on':'')+'" data-act="cat" data-c="'+c+'">'+esc(c==='All'?t('all'):c)+' <small>'+cnt(c)+'</small></button>').join('');
+  $('#pills').innerHTML=['All'].concat(usedCats()).map(c=>'<button class="pill '+(ui.cat===c?'on':'')+'" data-act="cat" data-c="'+c+'">'+esc(c==='All'?t('all'):c)+' <small>'+cnt(c)+'</small></button>').join('');
 }
 function drawItems(){
   const q=ui.foodQ.trim().toLowerCase();
@@ -1056,7 +1069,7 @@ VIEWS.food={
   mount(){
     setCrumb([{t:t('nav_food')}]);
     $('#view').innerHTML=
-    '<div class="food"><section class="fd-main"><div class="fd-head"><h1 class="title">'+esc(t('nav_food'))+'</h1><div class="fd-tools"><div class="search">'+ico('search',16)+'<input data-in="foodq" placeholder="'+esc(t('search'))+' menu" aria-label="Search menu" value="'+esc(ui.foodQ)+'"></div>'+(ME.role==='Manager'?'<button class="btn dark sm" data-act="item-new">'+ico('plus',14)+' New item</button>':'')+'</div></div>'+
+    '<div class="food"><section class="fd-main"><div class="fd-head"><h1 class="title">'+esc(t('nav_food'))+'</h1><div class="fd-tools"><div class="search">'+ico('search',16)+'<input data-in="foodq" placeholder="'+esc(t('search'))+' menu" aria-label="Search menu" value="'+esc(ui.foodQ)+'"></div>'+(ME.role==='Manager'?'<button class="btn ghost sm" data-act="cats-manage">'+ico('sliders',14)+' Categories</button><button class="btn dark sm" data-act="item-new">'+ico('plus',14)+' New item</button>':'')+'</div></div>'+
     '<div class="pills" id="pills"></div><div class="grid" id="items"></div></section>'+
     '<aside class="cart" id="cart" aria-label="Current order"><div class="cart-head"><h3 id="cart-title"></h3><span><button class="link" data-act="cart-clear">'+esc(t('clear'))+'</button> <button class="iconbtn sm close-cart" data-act="cart-toggle" aria-label="Close cart">'+ico('x',14)+'</button></span></div>'+
     '<div class="cart-meta"><label class="lab">'+esc(t('table'))+'<select class="field" id="c-table" data-ch="ctable"></select></label>'+
@@ -1131,12 +1144,13 @@ function pickerHTML(img){
   return thumb({cat:'', image:img},'thumb')+'<div class="btns"><label class="btn ghost sm pick">Upload photo<input type="file" accept="image/*" id="item-photo-input" hidden></label><button type="button" class="btn ghost sm" id="pic-clear" '+(img?'':'hidden')+'>Remove photo</button></div>';
 }
 function itemModal(id){
-  const m=id?DB.menu.find(x=>x.id===id):{name:'',cat:'Cold Drinks',price:'',image:'',sold:false};
+  const m=id?DB.menu.find(x=>x.id===id):{name:'',cat:'',price:'',image:'',sold:false};
   let img=m.image||'';
   const md=openModal('<h3 class="dh">'+(id?'Edit item':'New menu item')+'</h3><form class="stack">'+
    '<label class="lab">Name<input class="field" name="name" value="'+esc(m.name)+'" required maxlength="40"></label>'+
-   '<div class="two"><label class="lab">Category<select class="field" name="cat">'+CATS.map(c=>'<option '+(c===m.cat?'selected':'')+'>'+c+'</option>').join('')+'</select></label>'+
+   '<div class="two"><label class="lab">Category<input class="field" name="cat" list="cat-suggestions" value="'+esc(m.cat||'')+'" placeholder="e.g. Cold Drinks" maxlength="30" required></label>'+
    '<label class="lab">Price ($)<input class="field" name="price" type="number" min="0" step="0.01" value="'+m.price+'" required></label></div>'+
+   '<datalist id="cat-suggestions">'+catSuggestions().map(c=>'<option value="'+esc(c)+'">').join('')+'</datalist>'+
    '<div><span class="lab" style="display:block;margin-bottom:.4rem">Photo</span><div class="pic-pick" id="pic-pick">'+pickerHTML(img)+'</div>'+
    '<input class="field" id="pic-url" style="margin-top:.6rem" placeholder="'+(img.indexOf('data:')===0?'Photo uploaded — paste a link to replace it':'or paste an image link (https://...)')+'" value="'+(img.indexOf('data:')===0?'':esc(img))+'"></div>'+
    '<label class="row" style="border:0;padding:.2rem 0"><span>Sold out</span><span class="sw"><input type="checkbox" name="sold" '+(m.sold?'checked':'')+'><i></i></span></label>'+
@@ -1169,9 +1183,10 @@ function itemModal(id){
   });
   $('form',md).onsubmit=async e=>{
     e.preventDefault();const f=e.target.elements;
-    const name=f.name.value.trim(),price=parseFloat(f.price.value);
+    const name=f.name.value.trim(),price=parseFloat(f.price.value),cat=f.cat.value.trim();
     if(!name||!(price>=0)) return toast('Enter a name and a valid price','warn');
-    const data={name,cat:f.cat.value,price:r2(price),image:img,sold:f.sold.checked};
+    if(!cat) return toast('Enter a category','warn');
+    const data={name,cat,price:r2(price),image:img,sold:f.sold.checked};
     try{
       const q=id?sb.from('menu_items').update(menuToRow(data)).eq('id',id):sb.from('menu_items').insert(menuToRow(data));
       const r=await q.select().maybeSingle();
@@ -1192,6 +1207,33 @@ ACT['item-del']=el=>{
     if(r.error) return dbErr(r.error,'Couldn’t delete the item');
     if(!r.data||!r.data.length) return toast('Only managers can change the menu','warn');
     DB.menu=DB.menu.filter(x=>x.id!==id);drawPills();drawItems();toast('Item deleted');
+  });
+};
+function categoriesModal(){
+  const counts={};DB.menu.forEach(m=>{counts[m.cat]=(counts[m.cat]||0)+1});
+  const cats=usedCats();
+  openModal('<h3 class="dh">Manage categories</h3>'+
+   '<p class="muted">Rename a category to relabel every item in it — give two categories the same name to merge them. Type a new name on any item’s Category field to create one.</p>'+
+   '<div class="stack" style="max-height:20rem;overflow:auto">'+
+   (cats.length?cats.map(c=>'<div class="row"><span>'+esc(c)+' <small>('+(counts[c]||0)+' item'+(counts[c]===1?'':'s')+')</small></span><button class="iconbtn sm" data-act="cat-rename" data-cat="'+esc(c)+'" aria-label="Rename '+esc(c)+'">'+ico('edit',14)+'</button></div>').join(''):'<p class="empty sm">No categories yet — add a menu item to create one.</p>')+
+   '</div><div class="dfoot"><button type="button" class="btn ghost" data-act="close-modal">Close</button></div>','wide');
+}
+ACT['cats-manage']=()=>categoriesModal();
+ACT['cat-rename']=el=>{
+  const old=el.dataset.cat;
+  textBox('Rename "'+old+'"',old,old,async v=>{
+    v=v.trim();
+    if(!v||v===old) return categoriesModal();
+    try{
+      const r=await sb.from('menu_items').update({category:v}).eq('category',old).select();
+      if(r.error) throw r.error;
+      if(!r.data||!r.data.length) return toast('Only managers can rename categories','warn');
+      r.data.forEach(row=>{const mm=menuFromRow(row);const i=DB.menu.findIndex(x=>x.id===mm.id);if(i>=0)DB.menu[i]=mm});
+      if(ui.cat===old) ui.cat='All';
+      drawPills();drawItems();
+      toast('Category updated to "'+v+'"');
+    }catch(e){dbErr(e,'Couldn’t rename the category')}
+    categoriesModal();
   });
 };
 
